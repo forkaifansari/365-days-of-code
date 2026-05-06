@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "text": "Go to College",
+    "done": false,
+    "created": "2026-05-05"
+  },
+  {
+    "id": 2,
+    "text": "Eat",
+    "done": false,
+    "created": "2026-05-05"
+  },
+  {
+    "id": 3,
+    "text": "Sleep",
+    "done": true,
+    "created": "2026-05-05"
+  }
+]
