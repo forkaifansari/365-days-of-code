@@ -92,7 +92,8 @@ Follow the journey on LinkedIn: \[your linkedin link]
 
 
 
-\- LinkedIn: \[your linkedin link]
+\- LinkedIn: \www.linkedin.com/in/forkaifansari
+
 
 \- GitHub: \[github.com/forkaifansari](https://github.com/forkaifansari)
 
