@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>README</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      line-height: 1.8;
+      padding: 40px 20px;
+    }
+
+    .layout {
+      display: flex;
+      gap: 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .toc {
+      position: sticky;
+      top: 40px;
+      width: 220px;
+      flex-shrink: 0;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 16px;
+      height: fit-content;
+      font-size: 13px;
+    }
+
+    .toc h3 {
+      color: #58a6ff;
+      border: none;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { margin: 6px 0; }
+    .toc a { color: #8b949e; text-decoration: none; }
+    .toc a:hover { color: #58a6ff; }
+
+    .content { flex: 1; min-width: 0; }
+
+    h1, h2, h3, h4, h5, h6 {
+      color: #58a6ff;
+      margin: 28px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #21262d;
+    }
+
+    h1 { font-size: 2rem; color: #79c0ff; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.2rem; color: #56d364; }
+
+    p { margin: 12px 0; color: #cdd9e5; }
+
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    strong { color: #ffa657; }
+    em { color: #cba6f7; font-style: italic; }
+    del { color: #8b949e; }
+
+    code {
+      background: #1c2128;
+      color: #f8c555;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+      font-size: 0.875em;
+    }
+
+    pre {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 16px 0;
+      position: relative;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: #e6edf3;
+      font-size: 0.9em;
+      line-height: 1.6;
+    }
+
+    blockquote {
+      border-left: 4px solid #3fb950;
+      background: #161b22;
+      margin: 16px 0;
+      padding: 12px 20px;
+      border-radius: 0 8px 8px 0;
+      color: #8b949e;
+    }
+
+    blockquote p { color: #8b949e; margin: 0; }
+
+    ul, ol {
+      padding-left: 28px;
+      margin: 12px 0;
+      color: #cdd9e5;
+    }
+
+    li { margin: 6px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    th {
+      background: #161b22;
+      color: #58a6ff;
+      padding: 10px 14px;
+      border: 1px solid #30363d;
+      text-align: left;
+    }
+
+    td {
+      padding: 10px 14px;
+      border: 1px solid #21262d;
+      color: #cdd9e5;
+    }
+
+    tr:nth-child(even) { background: #0d1117; }
+    tr:nth-child(odd) { background: #161b22; }
+    tr:hover { background: #1c2128; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #30363d;
+      margin: 28px 0;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #238636;
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside><div class="toc"><h3>📋 Contents</h3><ul>
+<li style="margin-left:0px"><a href="#365-days-of-code-">365 Days of Code 🚀</a></li>
+<li style="margin-left:20px"><a href="#-progress-tracker">🟩 Progress Tracker</a></li>
+<li style="margin-left:20px"><a href="#-projects">📁 Projects</a></li>
+<li style="margin-left:20px"><a href="#-tech-stack-used-so-far">🛠️ Tech Stack Used So Far</a></li>
+<li style="margin-left:20px"><a href="#-rules-i-set-for-myself">📌 Rules I Set For Myself</a></li>
+<li style="margin-left:20px"><a href="#-connect">🔗 Connect</a></li>
+</ul></div></aside>
+    <main class="content"><h1 id="365-days-of-code-">365 Days of Code 🚀</h1>
+
+
+
+<blockquote><p>"Not waiting for opportunity. Building it."</p></blockquote>
+
+
+
+<p>Building one project every day for 365 days — shipped publicly, </p>
+
+<p>documented honestly, and pushed to GitHub every single day.</p>
+
+
+
+<p>Follow the journey on LinkedIn: <a href="https://www.linkedin.com/in/forkaifansari">www.linkedin.com/in/forkaifansari</a></p>
+
+
+
+<hr>
+
+
+
+<h2 id="-progress-tracker">🟩 Progress Tracker</h2>
+
+
+
+<p><img src="https://img.shields.io/badge/Days%20Complete-3-brightgreen" alt="Days Complete"></p>
+
+<p><img src="https://img.shields.io/badge/Streak-3%20days-orange" alt="Streak"></p>
+
+<p><img src="https://img.shields.io/badge/Projects-3-blue" alt="Projects"></p>
+
+
+
+<hr>
+
+
+
+<h2 id="-projects">📁 Projects</h2>
+
+
+
+<table><thead><tr><th>Day</th><th>Project</th><th>Tech Stack</th><th>Status</th></tr></thead><tbody></tbody></table>
+
+<table><thead><tr><th>-----</th><th>---------</th><th>------------</th><th>--------</th></tr></thead><tbody></tbody></table>
+
+<table><thead><tr><th>01</th><th><a href="./CLI%20To-Do%20List/">CLI To-Do List</a></th><th>Python</th><th>✅ Done</th></tr></thead><tbody></tbody></table>
+
+<table><thead><tr><th>02</th><th><a href="./Random%20Quote%20Generator/">Random Quote Generator</a></th><th>Python + REST API</th><th>✅ Done</th></tr></thead><tbody></tbody></table>
+
+<table><thead><tr><th>03</th><th><a href="./Password%20Strength%20Checker/">Password Strength Checker</a></th><th>Python + Regex</th><th>✅ Done</th></tr></thead><tbody></tbody></table>
+
+
+
+<hr>
+
+
+
+<h2 id="-tech-stack-used-so-far">🛠️ Tech Stack Used So Far</h2>
+
+
+
+<p><img src="https://img.shields.io/badge/Python-3776AB?style=flat\&logo=python\&logoColor=white" alt="Python"></p>
+
+<p><img src="https://img.shields.io/badge/REST%20API-FF6C37?style=flat\&logo=postman\&logoColor=white" alt="REST API"></p>
+
+
+
+<hr>
+
+
+
+<h2 id="-rules-i-set-for-myself">📌 Rules I Set For Myself</h2>
+
+
+
+<ul>
+<li>Build and push every single day — no exceptions</li>
+</ul>
+
+<ul>
+<li>Every project goes on GitHub with clean code</li>
+</ul>
+
+<ul>
+<li>Every project gets a LinkedIn post</li>
+</ul>
+
+<ul>
+<li>No skipping. No catching up. One day = one project.</li>
+</ul>
+
+
+
+<hr>
+
+
+
+<h2 id="-connect">🔗 Connect</h2>
+
+
+
+<ul>
+<li>LinkedIn: <a href="https://www.linkedin.com/in/forkaifansari">www.linkedin.com/in/forkaifansari</a></li>
+</ul>
+
+
+<ul>
+<li>GitHub: <a href="https://github.com/forkaifansari">github.com/forkaifansari</a></li>
+</ul>
+
+
+
+<hr>
+
+
+
+<p><em>Started: May 2026 · Expected finish: May 2027\</em></p>
+
+</main>
+  </div>
+</body>
+</html>
