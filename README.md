@@ -50,6 +50,8 @@ Follow the journey on LinkedIn: [www.linkedin.com/in/forkaifansari](https://www.
 
 | 03 | [Password Strength Checker](./Password%20Strength%20Checker/) | Python + Regex | ✅ Done |
 
+| 04 | [Markdown to HTML Converter](https://github.com/forkaifansari/365-days-of-code/tree/main/Markdown%20to%20HTML%20Converter) | Python + Regex | ✅ Done |
+
 
 
 ---
