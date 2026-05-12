@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaif Ansari — The Universe of One Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#02030a;
+  --star:#e8dfc8;
+  --glow:#7eb8f7;
+  --rust:#c94a2a;
+  --gold:#f0c060;
+  --green:#3fb950;
+  --purple:#bc8cff;
+  --ink:#0d1117;
+  --paper:#faf7f2;
+  --chalk:#e8dfc8;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--star);
+  font-family:'Space Mono',monospace;
+  overflow:hidden;
+  width:100vw;height:100vh;
+  cursor:none;
+}
+body.site-mode{overflow-y:auto;overflow-x:hidden;height:auto;cursor:default}
+
+/* ── CUSTOM CURSOR ── */
+#cursor{
+  position:fixed;width:16px;height:16px;
+  border:1.5px solid var(--glow);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .15s,height .15s,border-color .15s;
+  mix-blend-mode:screen;
+}
+#cursor-dot{
+  position:fixed;width:4px;height:4px;
+  background:var(--star);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+}
+body.site-mode #cursor{display:none}
+body.site-mode #cursor-dot{display:none}
+
+/* ── PHASE 1: CONSTELLATION MAZE ── */
+#phase-maze{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:var(--void);
+}
+#maze-canvas{position:absolute;inset:0;width:100%;height:100%}
+.maze-ui{
+  position:relative;z-index:10;
+  text-align:center;pointer-events:none;
+}
+.maze-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(.7rem,1.2vw,1rem);
+  letter-spacing:.4em;text-transform:uppercase;
+  color:var(--glow);opacity:.7;
+  margin-bottom:12px;animation:fadepulse 3s ease-in-out infinite;
+}
+.maze-hint{
+  font-size:10px;letter-spacing:.2em;
+  color:var(--star);opacity:.35;
+  margin-top:16px;
+}
+@keyframes fadepulse{0%,100%{opacity:.5}50%{opacity:.9}}
+
+/* progress bar */
+#maze-progress-wrap{
+  position:fixed;bottom:40px;left:50%;transform:translateX(-50%);
+  width:200px;z-index:200;
+}
+.progress-label{
+  font-size:9px;letter-spacing:.2em;color:var(--glow);
+  text-align:center;margin-bottom:6px;opacity:.6;
+}
+#maze-progress-bar{
+  height:2px;background:rgba(126,184,247,.15);border-radius:1px;
+  position:relative;overflow:hidden;
+}
+#maze-progress-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--glow),var(--gold));
+  border-radius:1px;transition:width .3s ease;
+}
+
+/* ── PHASE 2: BIG BANG ── */
+#phase-bang{
+  position:fixed;inset:0;z-index:90;
+  background:var(--void);
+  display:none;align-items:center;justify-content:center;
+}
+#bang-canvas{position:absolute;inset:0;width:100%;height:100%}
+.bang-name{
+  position:relative;z-index:10;
+  font-family:'Cinzel',serif;font-weight:900;
+  font-size:clamp(2.5rem,8vw,7rem);
+  letter-spacing:.08em;
+  color:transparent;
+  text-align:center;
+  opacity:0;
+  text-shadow:0 0 80px rgba(126,184,247,.8);
+}
+
+/* ── PHASE 3: THE SITE ── */
+#site{display:none;opacity:0;transition:opacity 1.2s ease}
+#site.visible{display:block;opacity:1}
+
+/* SITE NAV */
+.s-nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:18px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(2,3,10,.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(126,184,247,.12);
+}
+.s-logo{
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:15px;letter-spacing:.15em;
+  color:var(--star);
+}
+.s-logo span{color:var(--glow)}
+.s-links{display:flex;gap:28px;list-style:none}
+.s-links a{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(232,223,200,.5);text-decoration:none;
+  transition:color .2s;
+}
+.s-links a:hover{color:var(--glow)}
+
+/* SITE HERO */
+.s-hero{
+  min-height:100vh;padding:130px 60px 80px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;
+}
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.4}
+
+.s-hero-inner{position:relative;z-index:5;max-width:700px}
+
+.s-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:28px;
+  border:1px solid rgba(240,192,96,.2);
+  padding:6px 16px;border-radius:2px;
+}
+.badge-blink{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  animation:blink 1.4s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.s-name{
+  font-family:'Cinzel',serif;font-weight:900;
+  font-size:clamp(3rem,7vw,6.5rem);
+  line-height:.9;letter-spacing:-.02em;
+  margin-bottom:16px;
+}
+.s-name .line1{display:block;color:var(--star)}
+.s-name .line2{
+  display:block;
+  color:transparent;
+  -webkit-text-stroke:2px var(--glow);
+  cursor:pointer;
+  transition:text-shadow .2s;
+  user-select:none;
+}
+.s-name .line2:hover{text-shadow:0 0 40px var(--glow)}
+.s-name .line2.glitch{animation:glitch-anim .5s steps(2) infinite}
+
+@keyframes glitch-anim{
+  0%{clip-path:inset(20% 0 60% 0);transform:translate(-4px,0);filter:hue-rotate(90deg)}
+  25%{clip-path:inset(60% 0 10% 0);transform:translate(4px,0)}
+  50%{clip-path:inset(40% 0 40% 0);transform:translate(-2px,2px);filter:hue-rotate(180deg)}
+  75%{clip-path:inset(10% 0 80% 0);transform:translate(3px,-1px)}
+  100%{clip-path:inset(0);transform:translate(0)}
+}
+
+.s-role{
+  font-family:'Caveat',cursive;
+  font-size:clamp(1.3rem,2.5vw,1.9rem);
+  color:var(--rust);margin-bottom:28px;
+  transform:rotate(-1.2deg);display:inline-block;
+}
+
+.s-desc{
+  font-size:13px;line-height:2;
+  color:rgba(232,223,200,.65);
+  max-width:520px;margin-bottom:40px;
+}
+
+.s-btns{display:flex;gap:14px;flex-wrap:wrap}
+
+.s-btn{
+  padding:11px 26px;border-radius:2px;
+  font-family:'Space Mono',monospace;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  text-decoration:none;border:1px solid;
+  transition:all .2s;display:inline-flex;align-items:center;gap:8px;
+}
+.s-btn-primary{
+  background:var(--rust);color:#fff;
+  border-color:var(--rust);
+}
+.s-btn-primary:hover{background:transparent;color:var(--rust)}
+.s-btn-ghost{
+  background:transparent;color:var(--star);
+  border-color:rgba(232,223,200,.25);
+}
+.s-btn-ghost:hover{border-color:var(--glow);color:var(--glow)}
+
+/* scroll hint */
+.scroll-hint{
+  position:absolute;bottom:40px;left:60px;
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(232,223,200,.3);
+  display:flex;align-items:center;gap:12px;
+}
+.scroll-hint::after{
+  content:'';display:block;width:40px;height:1px;
+  background:rgba(232,223,200,.2);
+}
+
+/* ── LIFE MAP SECTION ── */
+.s-map-section{
+  padding:100px 60px;
+  position:relative;
+  background:var(--void);
+}
+.s-section-label{
+  font-family:'Caveat',cursive;
+  font-size:1.1rem;color:var(--gold);
+  margin-bottom:8px;transform:rotate(-1deg);display:inline-block;
+}
+.s-section-title{
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:clamp(1.8rem,3.5vw,3rem);
+  letter-spacing:-.01em;margin-bottom:60px;
+  color:var(--star);
+}
+
+.map-container{
+  position:relative;
+  max-width:900px;margin:0 auto;
+}
+
+/* hand-drawn map SVG area */
+#life-map-svg{
+  width:100%;border-radius:4px;
+  filter:drop-shadow(0 0 40px rgba(126,184,247,.1));
+}
+
+/* location popup */
+.location-popup{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.9);
+  width:min(90vw,520px);
+  background:rgba(2,3,10,.97);
+  border:1px solid rgba(126,184,247,.2);
+  border-radius:4px;padding:40px;
+  z-index:600;
+  opacity:0;pointer-events:none;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  backdrop-filter:blur(20px);
+}
+.location-popup.open{
+  opacity:1;pointer-events:all;
+  transform:translate(-50%,-50%) scale(1);
+}
+.popup-close{
+  position:absolute;top:16px;right:20px;
+  background:none;border:none;
+  color:rgba(232,223,200,.4);font-size:20px;
+  cursor:pointer;transition:color .2s;
+  font-family:'Space Mono',monospace;
+}
+.popup-close:hover{color:var(--rust)}
+.popup-tag{
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;
+}
+.popup-title{
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:1.5rem;margin-bottom:12px;
+  color:var(--star);
+}
+.popup-date{
+  font-family:'Caveat',cursive;
+  font-size:1.1rem;color:var(--rust);
+  margin-bottom:16px;transform:rotate(-.8deg);display:inline-block;
+}
+.popup-body{
+  font-size:13px;line-height:1.9;
+  color:rgba(232,223,200,.7);
+  margin-bottom:20px;
+}
+.popup-tags{display:flex;gap:8px;flex-wrap:wrap}
+.popup-chip{
+  font-size:10px;padding:3px 10px;
+  border:1px solid rgba(126,184,247,.2);
+  color:rgba(232,223,200,.5);border-radius:2px;
+  letter-spacing:.06em;
+}
+
+/* overlay bg */
+#popup-overlay{
+  position:fixed;inset:0;z-index:590;
+  background:rgba(0,0,0,.6);
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+#popup-overlay.open{opacity:1;pointer-events:all}
+
+/* ── PROJECTS ── */
+.s-projects{padding:100px 60px;background:rgba(13,17,23,.6)}
+
+.projects-masonry{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1px;
+  background:rgba(126,184,247,.08);
+}
+
+.p-card{
+  background:var(--ink);
+  padding:28px;
+  position:relative;overflow:hidden;
+  transition:background .2s;
+  text-decoration:none;color:inherit;display:block;
+}
+.p-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--glow),var(--rust),var(--gold));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s ease;
+}
+.p-card:hover::before{transform:scaleX(1)}
+.p-card:hover{background:rgba(126,184,247,.04)}
+
+.p-num{
+  position:absolute;top:20px;right:20px;
+  font-family:'Bebas Neue',sans-serif;font-size:4rem;
+  color:rgba(232,223,200,.04);line-height:1;
+  transition:color .2s;
+}
+.p-card:hover .p-num{color:rgba(126,184,247,.08)}
+
+.p-tag{
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;
+}
+.p-title{
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:1.05rem;margin-bottom:10px;color:var(--star);
+  line-height:1.2;
+}
+.p-desc{
+  font-size:12px;line-height:1.8;
+  color:rgba(232,223,200,.5);margin-bottom:18px;
+}
+.p-stack{display:flex;gap:6px;flex-wrap:wrap}
+.p-chip{
+  font-size:9px;letter-spacing:.08em;
+  padding:3px 8px;
+  border:1px solid rgba(232,223,200,.1);
+  color:rgba(232,223,200,.35);
+}
+
+/* ── SKILLS ── */
+.s-skills{padding:100px 60px}
+.skills-orbs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;max-width:860px;
+}
+.skill-orb{
+  padding:20px 16px;
+  border:1px solid rgba(232,223,200,.08);
+  border-radius:4px;text-align:center;
+  transition:all .2s;cursor:default;
+  position:relative;overflow:hidden;
+}
+.skill-orb::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at center,var(--glow) 0%,transparent 70%);
+  opacity:0;transition:opacity .3s;
+}
+.skill-orb:hover::after{opacity:.06}
+.skill-orb:hover{border-color:rgba(126,184,247,.3);transform:translateY(-3px)}
+.orb-icon{font-size:1.6rem;margin-bottom:8px;display:block}
+.orb-name{font-size:11px;letter-spacing:.06em;color:rgba(232,223,200,.7)}
+.orb-level{
+  margin-top:8px;height:2px;
+  background:rgba(232,223,200,.08);border-radius:1px;overflow:hidden;
+}
+.orb-fill{height:100%;border-radius:1px;
+  background:linear-gradient(90deg,var(--glow),var(--purple));
+}
+
+/* ── STATS TICKER ── */
+.s-ticker{
+  padding:20px 0;
+  background:var(--rust);
+  overflow:hidden;white-space:nowrap;
+  border-top:1px solid rgba(0,0,0,.3);
+  border-bottom:1px solid rgba(0,0,0,.3);
+}
+.ticker-track{
+  display:inline-block;
+  animation:roll 25s linear infinite;
+}
+.ticker-track span{
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.9);margin:0 28px;
+}
+.ticker-track .dot{color:var(--gold);font-size:16px}
+@keyframes roll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── CONTACT ── */
+.s-contact{
+  padding:120px 60px;
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;
+  align-items:center;
+  background:radial-gradient(ellipse at 20% 50%,rgba(126,184,247,.04) 0%,transparent 60%);
+}
+.contact-big{
+  font-family:'Cinzel',serif;font-weight:900;
+  font-size:clamp(2.5rem,5vw,4.5rem);
+  line-height:.95;letter-spacing:-.02em;
+  color:var(--star);
+}
+.contact-big em{
+  font-style:italic;
+  color:transparent;-webkit-text-stroke:1.5px var(--rust);
+}
+.contact-sub{
+  margin-top:24px;font-size:13px;
+  color:rgba(232,223,200,.5);line-height:1.9;max-width:360px;
+}
+.contact-list{display:flex;flex-direction:column;gap:0}
+.c-link{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 0;
+  border-bottom:1px solid rgba(232,223,200,.06);
+  text-decoration:none;color:var(--star);
+  font-size:13px;letter-spacing:.06em;
+  transition:color .2s;
+  position:relative;
+}
+.c-link:first-child{border-top:1px solid rgba(232,223,200,.06)}
+.c-link::after{
+  content:'→';color:var(--glow);
+  opacity:0;transform:translateX(-8px);
+  transition:all .2s;
+}
+.c-link:hover{color:var(--glow)}
+.c-link:hover::after{opacity:1;transform:translateX(0)}
+.c-sub{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(232,223,200,.25)}
+
+/* ── FOOTER ── */
+.s-footer{
+  padding:28px 60px;
+  border-top:1px solid rgba(232,223,200,.06);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.s-footer p{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(232,223,200,.2);
+}
+.s-footer span{color:var(--gold)}
+
+/* ── TERMINAL EASTER EGG ── */
+#terminal{
+  position:fixed;bottom:32px;right:32px;
+  width:480px;max-height:320px;
+  background:rgba(2,3,10,.97);
+  border:1px solid var(--green);
+  border-radius:4px;z-index:700;
+  display:none;overflow:hidden;
+  font-family:'Space Mono',monospace;
+  box-shadow:0 0 40px rgba(63,185,80,.2);
+}
+#terminal.open{display:block}
+.term-bar{
+  background:var(--green);padding:8px 16px;
+  display:flex;align-items:center;gap:8px;
+}
+.term-bar span{font-size:11px;color:#000;letter-spacing:.08em;font-weight:700}
+.term-close{
+  margin-left:auto;background:none;border:none;
+  color:#000;cursor:pointer;font-size:14px;font-weight:700;
+}
+.term-body{padding:16px;font-size:12px;line-height:1.9;max-height:260px;overflow-y:auto}
+.term-line{margin:2px 0}
+.term-line.cmd{color:var(--green)}
+.term-line.out{color:rgba(232,223,200,.7)}
+.term-line.err{color:var(--rust)}
+.term-line.gold{color:var(--gold)}
+.term-input-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border-top:1px solid rgba(63,185,80,.2);
+}
+.term-prompt{color:var(--green);font-size:12px}
+#term-input{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--star);font-family:'Space Mono',monospace;font-size:12px;
+}
+
+/* ── CODE ROOM ── */
+#code-room{
+  position:fixed;inset:0;z-index:800;
+  background:rgba(2,3,10,.97);
+  display:none;flex-direction:column;
+  font-family:'Space Mono',monospace;
+}
+#code-room.open{display:flex}
+.code-room-bar{
+  background:#161b22;padding:12px 24px;
+  display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid rgba(126,184,247,.1);
+}
+.code-room-bar span{font-size:12px;color:rgba(232,223,200,.4);letter-spacing:.1em}
+.cr-close{
+  margin-left:auto;background:none;border:none;
+  color:rgba(232,223,200,.4);cursor:pointer;font-size:16px;
+  font-family:'Space Mono',monospace;
+}
+.cr-close:hover{color:var(--rust)}
+.code-body{
+  flex:1;overflow-y:auto;padding:32px 40px;
+  display:grid;grid-template-columns:1fr 1fr;gap:32px;
+}
+.code-file{
+  background:#0d1117;
+  border:1px solid rgba(126,184,247,.1);
+  border-radius:4px;overflow:hidden;
+}
+.code-file-header{
+  background:#161b22;padding:10px 16px;
+  font-size:11px;color:var(--glow);
+  letter-spacing:.08em;
+  border-bottom:1px solid rgba(126,184,247,.08);
+}
+.code-file pre{
+  padding:20px;font-size:11px;line-height:1.8;
+  color:rgba(232,223,200,.65);overflow-x:auto;
+}
+.kw{color:var(--purple)}
+.str{color:var(--gold)}
+.fn{color:var(--glow)}
+.cm{color:rgba(232,223,200,.25);font-style:italic}
+.num{color:var(--rust)}
+
+/* ── GLITCH OVERLAY ── */
+#glitch-overlay{
+  position:fixed;inset:0;z-index:999;
+  pointer-events:none;display:none;
+}
+#glitch-overlay.active{display:block}
+.glitch-line{
+  position:absolute;left:0;right:0;
+  background:var(--glow);mix-blend-mode:screen;
+  animation:glitch-scan .08s steps(1) infinite;
+}
+@keyframes glitch-scan{
+  0%{top:10%;height:3px;opacity:.9}
+  25%{top:50%;height:1px;opacity:.6}
+  50%{top:80%;height:5px;opacity:.8}
+  75%{top:30%;height:2px;opacity:.5}
+  100%{top:60%;height:4px;opacity:.7}
+}
+
+@media(max-width:768px){
+  .s-nav{padding:14px 20px}
+  .s-links{gap:16px}
+  .s-hero{padding:110px 24px 60px}
+  .s-map-section,.s-projects,.s-skills,.s-contact{padding:60px 24px}
+  .s-contact{grid-template-columns:1fr;gap:40px}
+  .skills-orbs{grid-template-columns:repeat(2,1fr)}
+  .code-body{grid-template-columns:1fr}
+  #terminal{width:calc(100vw - 32px);right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- ═══════════════════════════════════════
+     PHASE 1: CONSTELLATION MAZE
+═══════════════════════════════════════ -->
+<div id="phase-maze">
+  <canvas id="maze-canvas"></canvas>
+  <div class="maze-ui">
+    <div class="maze-title">Navigate the constellation to enter</div>
+    <div style="font-family:'Cinzel',serif;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:.15em;color:rgba(232,223,200,.15);margin:8px 0">KAIF ANSARI</div>
+  </div>
+  <div id="maze-progress-wrap">
+    <div class="progress-label">PATH TRACED</div>
+    <div id="maze-progress-bar"><div id="maze-progress-fill"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PHASE 2: BIG BANG
+═══════════════════════════════════════ -->
+<div id="phase-bang" style="display:none;position:fixed;inset:0;z-index:90;background:var(--void);align-items:center;justify-content:center">
+  <canvas id="bang-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+  <div class="bang-name" id="bang-name">KAIF<br>ANSARI</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PHASE 3: THE ACTUAL SITE
+═══════════════════════════════════════ -->
+<div id="site">
+
+  <!-- NAV -->
+  <nav class="s-nav">
+    <div class="s-logo">kaif<span>.</span>dev</div>
+    <ul class="s-links">
+      <li><a href="#map">Life Map</a></li>
+      <li><a href="#projects">Work</a></li>
+      <li><a href="#skills">Stack</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="s-hero" id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="s-hero-inner">
+      <div class="s-badge">
+        <div class="badge-blink"></div>
+        Day <span id="day-count">8</span> of 365 · Bhilai, India
+      </div>
+      <h1 class="s-name">
+        <span class="line1">Mohammad</span>
+        <span class="line2" id="click-name" title="Click me 5 times...">Kaif Ansari</span>
+      </h1>
+      <p class="s-role">AI/ML Developer · Team Axtryx Lead · Builder</p>
+      <p class="s-desc">
+        Born 9 Aug 2007 in Bhilai. Karate kid turned MMA national silver medalist
+        turned AI/ML developer. JEE didn't clear — so I built something better.
+        Now shipping one real project every single day. Not waiting for permission.
+        Not waiting for opportunity. Just building.
+      </p>
+      <div class="s-btns">
+        <a href="https://github.com/forkaifansari/365-days-of-code" class="s-btn s-btn-primary" target="_blank">View 365 Days →</a>
+        <a href="https://github.com/forkaifansari" class="s-btn s-btn-ghost" target="_blank">GitHub</a>
+        <a href="https://www.linkedin.com/in/forkaifansari" class="s-btn s-btn-ghost" target="_blank">LinkedIn</a>
+        <button class="s-btn s-btn-ghost" onclick="openCodeRoom()" style="cursor:pointer">
+          &lt;/&gt; Live Code
+        </button>
+      </div>
+    </div>
+    <div class="scroll-hint">Scroll to explore</div>
+  </section>
+
+  <!-- STATS TICKER -->
+  <div class="s-ticker">
+    <div class="ticker-track">
+      <span>MediRoute AI</span><span class="dot">✦</span>
+      <span>ChainBreaker</span><span class="dot">✦</span>
+      <span>India Salary Predictor</span><span class="dot">✦</span>
+      <span>TrustLoan</span><span class="dot">✦</span>
+      <span>ResumeIQ</span><span class="dot">✦</span>
+      <span>Team Axtryx</span><span class="dot">✦</span>
+      <span>365 Days of Code</span><span class="dot">✦</span>
+      <span>4+ Hackathons</span><span class="dot">✦</span>
+      <span>MediRoute AI</span><span class="dot">✦</span>
+      <span>ChainBreaker</span><span class="dot">✦</span>
+      <span>India Salary Predictor</span><span class="dot">✦</span>
+      <span>TrustLoan</span><span class="dot">✦</span>
+      <span>ResumeIQ</span><span class="dot">✦</span>
+      <span>Team Axtryx</span><span class="dot">✦</span>
+      <span>365 Days of Code</span><span class="dot">✦</span>
+      <span>4+ Hackathons</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- LIFE MAP -->
+  <section class="s-map-section" id="map">
+    <div class="s-section-label">// Chapter 01</div>
+    <h2 class="s-section-title">The Map of My Life</h2>
+    <p style="font-size:13px;color:rgba(232,223,200,.4);margin-bottom:40px;max-width:500px;line-height:1.9">
+      Every place shaped me. Click a pin on the map to open that chapter of the story.
+    </p>
+    <div class="map-container">
+      <svg id="life-map-svg" viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="sketch-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <radialGradient id="map-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#7eb8f7" stop-opacity="0.03"/>
+            <stop offset="100%" stop-color="#02030a" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Map background -->
+        <rect width="900" height="580" fill="#080c14" rx="4"/>
+        <rect width="900" height="580" fill="url(#map-glow)"/>
+
+        <!-- Grid lines — hand drawn feel -->
+        <g stroke="rgba(126,184,247,0.04)" stroke-width="1">
+          <line x1="150" y1="0" x2="150" y2="580"/>
+          <line x1="300" y1="0" x2="300" y2="580"/>
+          <line x1="450" y1="0" x2="450" y2="580"/>
+          <line x1="600" y1="0" x2="600" y2="580"/>
+          <line x1="750" y1="0" x2="750" y2="580"/>
+          <line x1="0" y1="116" x2="900" y2="116"/>
+          <line x1="0" y1="232" x2="900" y2="232"/>
+          <line x1="0" y1="348" x2="900" y2="348"/>
+          <line x1="0" y1="464" x2="900" y2="464"/>
+        </g>
+
+        <!-- Chhattisgarh outline (simplified hand-drawn polygon) -->
+        <path
+          d="M280,80 C310,70 360,65 400,80 C440,95 480,88 510,110
+             C540,132 560,160 555,195 C550,230 570,260 560,295
+             C550,330 530,355 500,370 C470,385 440,400 410,410
+             C380,420 350,425 320,415 C290,405 265,385 255,358
+             C245,331 250,300 248,270 C246,240 240,210 245,180
+             C250,150 255,120 265,100 Z"
+          fill="rgba(126,184,247,0.04)"
+          stroke="rgba(126,184,247,0.15)"
+          stroke-width="1.5"
+          filter="url(#sketch-filter)"
+        />
+
+        <!-- State label -->
+        <text x="400" y="260" text-anchor="middle"
+          fill="rgba(126,184,247,0.12)"
+          font-family="Caveat,cursive" font-size="22" font-weight="600"
+          transform="rotate(-5,400,260)">Chhattisgarh</text>
+
+        <!-- River lines -->
+        <path d="M320,120 C340,145 350,175 345,205 C340,235 330,260 340,290"
+          fill="none" stroke="rgba(126,184,247,0.1)" stroke-width="2"
+          stroke-dasharray="4,6" filter="url(#sketch-filter)"/>
+        <path d="M380,200 C400,220 420,235 440,255 C460,275 470,300 460,330"
+          fill="none" stroke="rgba(126,184,247,0.08)" stroke-width="1.5"
+          stroke-dasharray="3,5" filter="url(#sketch-filter)"/>
+
+        <!-- Location pins with pulse rings -->
+        <!-- 1: Bhilai City (roots) -->
+        <g class="map-pin" data-id="bhilai" style="cursor:pointer" transform="translate(340,290)">
+          <circle r="30" fill="none" stroke="rgba(201,74,42,0.15)" stroke-width="1">
+            <animate attributeName="r" values="16;30;16" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0;0.8" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="12" fill="rgba(201,74,42,0.12)" stroke="rgba(201,74,42,0.5)" stroke-width="1.5"/>
+          <circle r="5" fill="#c94a2a"/>
+          <text y="-18" text-anchor="middle" fill="rgba(232,223,200,0.7)"
+            font-family="Caveat,cursive" font-size="13">Bhilai</text>
+          <text y="-5" text-anchor="middle" fill="rgba(201,74,42,0.6)"
+            font-family="Space Mono,monospace" font-size="8">● My Roots</text>
+        </g>
+
+        <!-- 2: Delhi Public School -->
+        <g class="map-pin" data-id="dps" style="cursor:pointer" transform="translate(370,245)">
+          <circle r="28" fill="none" stroke="rgba(240,192,96,0.15)" stroke-width="1">
+            <animate attributeName="r" values="14;28;14" dur="3.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0;0.8" dur="3.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="10" fill="rgba(240,192,96,0.12)" stroke="rgba(240,192,96,0.5)" stroke-width="1.5"/>
+          <circle r="4" fill="#f0c060"/>
+          <text y="-16" text-anchor="middle" fill="rgba(232,223,200,0.7)"
+            font-family="Caveat,cursive" font-size="12">DPS Bhilai</text>
+          <text y="-4" text-anchor="middle" fill="rgba(240,192,96,0.6)"
+            font-family="Space Mono,monospace" font-size="7">● School</text>
+        </g>
+
+        <!-- 3: Rungta University -->
+        <g class="map-pin" data-id="rungta" style="cursor:pointer" transform="translate(400,315)">
+          <circle r="28" fill="none" stroke="rgba(126,184,247,0.2)" stroke-width="1">
+            <animate attributeName="r" values="14;28;14" dur="2.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0;0.9" dur="2.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="10" fill="rgba(126,184,247,0.15)" stroke="rgba(126,184,247,0.6)" stroke-width="1.5"/>
+          <circle r="4" fill="#7eb8f7"/>
+          <text y="-16" text-anchor="middle" fill="rgba(232,223,200,0.7)"
+            font-family="Caveat,cursive" font-size="12">Rungta Univ.</text>
+          <text y="-4" text-anchor="middle" fill="rgba(126,184,247,0.6)"
+            font-family="Space Mono,monospace" font-size="7">● University</text>
+        </g>
+
+        <!-- 4: Hackathon Arena -->
+        <g class="map-pin" data-id="hackathon" style="cursor:pointer" transform="translate(480,200)">
+          <circle r="30" fill="none" stroke="rgba(63,185,80,0.2)" stroke-width="1">
+            <animate attributeName="r" values="15;30;15" dur="2.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0;0.9" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="11" fill="rgba(63,185,80,0.12)" stroke="rgba(63,185,80,0.6)" stroke-width="1.5"/>
+          <circle r="4.5" fill="#3fb950"/>
+          <text y="-17" text-anchor="middle" fill="rgba(232,223,200,0.7)"
+            font-family="Caveat,cursive" font-size="12">Hackathons</text>
+          <text y="-5" text-anchor="middle" fill="rgba(63,185,80,0.6)"
+            font-family="Space Mono,monospace" font-size="7">● Battlegrounds</text>
+        </g>
+
+        <!-- 5: Team Axtryx HQ -->
+        <g class="map-pin" data-id="axtryx" style="cursor:pointer" transform="translate(310,350)">
+          <circle r="28" fill="none" stroke="rgba(188,140,255,0.2)" stroke-width="1">
+            <animate attributeName="r" values="14;28;14" dur="4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0;0.9" dur="4s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="10" fill="rgba(188,140,255,0.12)" stroke="rgba(188,140,255,0.5)" stroke-width="1.5"/>
+          <circle r="4" fill="#bc8cff"/>
+          <text y="-16" text-anchor="middle" fill="rgba(232,223,200,0.7)"
+            font-family="Caveat,cursive" font-size="12">Team Axtryx</text>
+          <text y="-4" text-anchor="middle" fill="rgba(188,140,255,0.6)"
+            font-family="Space Mono,monospace" font-size="7">● HQ</text>
+        </g>
+
+        <!-- 6: GitHub (virtual) -->
+        <g class="map-pin" data-id="github" style="cursor:pointer" transform="translate(680,160)">
+          <circle r="28" fill="none" stroke="rgba(232,223,200,0.15)" stroke-width="1">
+            <animate attributeName="r" values="14;28;14" dur="3.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0;0.8" dur="3.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="10" fill="rgba(232,223,200,0.08)" stroke="rgba(232,223,200,0.3)" stroke-width="1.5"/>
+          <circle r="4" fill="#e8dfc8"/>
+          <text y="-16" text-anchor="middle" fill="rgba(232,223,200,0.7)"
+            font-family="Caveat,cursive" font-size="12">GitHub</text>
+          <text y="-4" text-anchor="middle" fill="rgba(232,223,200,0.4)"
+            font-family="Space Mono,monospace" font-size="7">● Where I Live</text>
+        </g>
+
+        <!-- Connecting dotted lines between locations -->
+        <g stroke="rgba(126,184,247,0.08)" stroke-width="1" stroke-dasharray="3,6" fill="none">
+          <path d="M340,290 C355,268 365,258 370,245"/>
+          <path d="M340,290 C360,302 375,310 400,315"/>
+          <path d="M370,245 C410,235 445,215 480,200"/>
+          <path d="M340,290 C330,315 320,330 310,350"/>
+          <path d="M480,200 C560,185 620,170 680,160"/>
+        </g>
+
+        <!-- Decorative compass rose -->
+        <g transform="translate(820,490)" opacity="0.15">
+          <circle r="24" fill="none" stroke="rgba(126,184,247,0.4)" stroke-width="0.8"/>
+          <line x1="0" y1="-18" x2="0" y2="18" stroke="rgba(126,184,247,0.6)" stroke-width="1"/>
+          <line x1="-18" y1="0" x2="18" y2="0" stroke="rgba(126,184,247,0.6)" stroke-width="1"/>
+          <polygon points="0,-18 -3,-8 0,-12 3,-8" fill="rgba(201,74,42,0.8)"/>
+          <text y="-22" text-anchor="middle" fill="rgba(232,223,200,0.5)"
+            font-family="Space Mono,monospace" font-size="8">N</text>
+        </g>
+
+        <!-- Map title -->
+        <text x="60" y="52" fill="rgba(126,184,247,0.5)"
+          font-family="Cinzel,serif" font-size="14" font-weight="700" letter-spacing="0.1em">BHILAI · CHHATTISGARH · INDIA</text>
+        <text x="60" y="72" fill="rgba(232,223,200,0.15)"
+          font-family="Space Mono,monospace" font-size="9" letter-spacing="0.15em">21.2167° N · 81.4167° E</text>
+        <line x1="60" y1="80" x2="280" y2="80" stroke="rgba(126,184,247,0.1)" stroke-width="0.8"/>
+
+        <!-- Legend -->
+        <g transform="translate(640,400)">
+          <rect width="200" height="130" fill="rgba(2,3,10,0.8)" stroke="rgba(126,184,247,0.08)" rx="2"/>
+          <text x="16" y="22" fill="rgba(232,223,200,0.4)"
+            font-family="Space Mono,monospace" font-size="8" letter-spacing="0.15em">LEGEND</text>
+          <circle cx="26" cy="40" r="4" fill="#c94a2a"/>
+          <text x="38" y="44" fill="rgba(232,223,200,0.5)" font-family="Caveat,cursive" font-size="12">Bhilai City</text>
+          <circle cx="26" cy="60" r="4" fill="#f0c060"/>
+          <text x="38" y="64" fill="rgba(232,223,200,0.5)" font-family="Caveat,cursive" font-size="12">School</text>
+          <circle cx="26" cy="80" r="4" fill="#7eb8f7"/>
+          <text x="38" y="84" fill="rgba(232,223,200,0.5)" font-family="Caveat,cursive" font-size="12">University</text>
+          <circle cx="26" cy="100" r="4" fill="#3fb950"/>
+          <text x="38" y="104" fill="rgba(232,223,200,0.5)" font-family="Caveat,cursive" font-size="12">Hackathons</text>
+          <circle cx="106" cy="40" r="4" fill="#bc8cff"/>
+          <text x="118" y="44" fill="rgba(232,223,200,0.5)" font-family="Caveat,cursive" font-size="12">Team HQ</text>
+          <circle cx="106" cy="60" r="4" fill="#e8dfc8"/>
+          <text x="118" y="64" fill="rgba(232,223,200,0.5)" font-family="Caveat,cursive" font-size="12">GitHub</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- POPUP OVERLAY -->
+  <div id="popup-overlay"></div>
+  <div class="location-popup" id="location-popup">
+    <button class="popup-close" id="popup-close">✕</button>
+    <div class="popup-tag" id="p-tag"></div>
+    <div class="popup-title" id="p-title"></div>
+    <div class="popup-date" id="p-date"></div>
+    <div class="popup-body" id="p-body"></div>
+    <div class="popup-tags" id="p-tags"></div>
+  </div>
+
+  <!-- PROJECTS -->
+  <section class="s-projects" id="projects">
+    <div style="padding-bottom:56px">
+      <div class="s-section-label">// Chapter 02</div>
+      <h2 class="s-section-title">Projects I'm Proud Of</h2>
+    </div>
+    <div class="projects-masonry">
+      <a class="p-card" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        <div class="p-num">01</div>
+        <div class="p-tag">Health Tech · 2026</div>
+        <div class="p-title">MediRoute AI</div>
+        <div class="p-desc">Multilingual health triage — Indian language symptoms, severity classification, hospital mapping via Leaflet.</div>
+        <div class="p-stack">
+          <span class="p-chip">FastAPI</span><span class="p-chip">React</span><span class="p-chip">Groq</span><span class="p-chip">Leaflet</span>
+        </div>
+      </a>
+      <a class="p-card" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        <div class="p-num">02</div>
+        <div class="p-tag">Fintech · 2026</div>
+        <div class="p-title">ChainBreaker</div>
+        <div class="p-desc">GNN-based fraud detection on blockchain. Freezes entire mule account chains simultaneously using graph attention networks.</div>
+        <div class="p-stack">
+          <span class="p-chip">PyTorch Geometric</span><span class="p-chip">GAT</span><span class="p-chip">FastAPI</span>
+        </div>
+      </a>
+      <a class="p-card" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        <div class="p-num">03</div>
+        <div class="p-tag">ML · 2026</div>
+        <div class="p-title">India Tech Salary Predictor</div>
+        <div class="p-desc">XGBoost + SHAP explainability. India-first dataset, 12,000+ records. Answers "why did I get this prediction?"</div>
+        <div class="p-stack">
+          <span class="p-chip">XGBoost</span><span class="p-chip">SHAP</span><span class="p-chip">Next.js</span>
+        </div>
+      </a>
+      <a class="p-card" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        <div class="p-num">04</div>
+        <div class="p-tag">Fintech · 2026</div>
+        <div class="p-title">TrustLoan</div>
+        <div class="p-desc">Alternative credit for gig workers. 42 UPI behavioral signals across 6 categories. No CIBIL? No problem.</div>
+        <div class="p-stack">
+          <span class="p-chip">Python</span><span class="p-chip">ML</span><span class="p-chip">FastAPI</span>
+        </div>
+      </a>
+      <a class="p-card" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        <div class="p-num">05</div>
+        <div class="p-tag">AI · 2025</div>
+        <div class="p-title">ResumeIQ</div>
+        <div class="p-desc">ATS scoring, skill gap radar, mock interview chat, job matching — everything a job seeker actually needs.</div>
+        <div class="p-stack">
+          <span class="p-chip">Next.js</span><span class="p-chip">Groq</span><span class="p-chip">LangChain</span>
+        </div>
+      </a>
+      <a class="p-card" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        <div class="p-num">06</div>
+        <div class="p-tag">Challenge · 2026</div>
+        <div class="p-title">365 Days of Code</div>
+        <div class="p-desc">One real project, every single day, for a year. No filler. No excuses. All public on GitHub.</div>
+        <div class="p-stack">
+          <span class="p-chip">Everything</span><span class="p-chip">Python</span><span class="p-chip">React</span><span class="p-chip">AI/ML</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="s-skills" id="skills">
+    <div class="s-section-label">// Chapter 03</div>
+    <h2 class="s-section-title">What I Build With</h2>
+    <div class="skills-orbs">
+      <div class="skill-orb"><span class="orb-icon">🐍</span><div class="orb-name">Python</div><div class="orb-level"><div class="orb-fill" style="width:95%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">⚛️</span><div class="orb-name">React</div><div class="orb-level"><div class="orb-fill" style="width:85%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">▲</span><div class="orb-name">Next.js</div><div class="orb-level"><div class="orb-fill" style="width:80%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">⚡</span><div class="orb-name">FastAPI</div><div class="orb-level"><div class="orb-fill" style="width:90%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">🦜</span><div class="orb-name">LangChain</div><div class="orb-level"><div class="orb-fill" style="width:78%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">🔥</span><div class="orb-name">PyTorch</div><div class="orb-level"><div class="orb-fill" style="width:75%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">📊</span><div class="orb-name">XGBoost</div><div class="orb-level"><div class="orb-fill" style="width:88%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">🗄️</span><div class="orb-name">PostgreSQL</div><div class="orb-level"><div class="orb-fill" style="width:72%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">🐳</span><div class="orb-name">Docker</div><div class="orb-level"><div class="orb-fill" style="width:70%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">🤖</span><div class="orb-name">Groq API</div><div class="orb-level"><div class="orb-fill" style="width:92%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">🧠</span><div class="orb-name">LangGraph</div><div class="orb-level"><div class="orb-fill" style="width:74%"></div></div></div>
+      <div class="skill-orb"><span class="orb-icon">☁️</span><div class="orb-name">GCP</div><div class="orb-level"><div class="orb-fill" style="width:65%"></div></div></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="s-contact" id="contact">
+    <div>
+      <h2 class="contact-big">Let's<br>Build<br><em>Together.</em></h2>
+      <p class="contact-sub">
+        Open to internships, research roles, and hackathon teams.
+        If you're working on something ambitious — I want in.
+      </p>
+    </div>
+    <div class="contact-list">
+      <a class="c-link" href="https://www.linkedin.com/in/forkaifansari" target="_blank">
+        LinkedIn <span class="c-sub">Connect →</span>
+      </a>
+      <a class="c-link" href="https://github.com/forkaifansari" target="_blank">
+        GitHub <span class="c-sub">Follow →</span>
+      </a>
+      <a class="c-link" href="https://github.com/forkaifansari/365-days-of-code" target="_blank">
+        365 Days of Code <span class="c-sub">Watch →</span>
+      </a>
+      <a class="c-link" href="mailto:mohammad.kaif.ansari@rungta.org">
+        Email <span class="c-sub">Write →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="s-footer">
+    <p>© 2026 Kaif Ansari · Bhilai, Chhattisgarh 🇮🇳</p>
+    <p>Day <span>8</span> of 365 · Pure HTML, CSS & JS</p>
+  </footer>
+
+</div><!-- /site -->
+
+<!-- ══════════════════
+     EASTER EGG: TERMINAL
+══════════════════ -->
+<div id="terminal">
+  <div class="term-bar">
+    <span>axtryx@kaif:~$</span>
+    <button class="term-close" onclick="closeTerminal()">✕</button>
+  </div>
+  <div class="term-body" id="term-body">
+    <div class="term-line gold">// Secret terminal unlocked. Welcome, hacker.</div>
+    <div class="term-line out">Type 'help' for commands.</div>
+  </div>
+  <div class="term-input-row">
+    <span class="term-prompt">$</span>
+    <input id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="enter command...">
+  </div>
+</div>
+
+<!-- ══════════════════
+     EASTER EGG: CODE ROOM
+══════════════════ -->
+<div id="code-room">
+  <div class="code-room-bar">
+    <span>// KAIF'S ACTUAL CODE — Live snippets from real projects</span>
+    <button class="cr-close" onclick="closeCodeRoom()">[ close ]</button>
+  </div>
+  <div class="code-body">
+    <div class="code-file">
+      <div class="code-file-header">mediRoute_triage.py</div>
+      <pre><code><span class="cm"># MediRoute AI — core triage logic</span>
+<span class="kw">from</span> groq <span class="kw">import</span> Groq
+<span class="kw">from</span> langchain.prompts <span class="kw">import</span> PromptTemplate
+
+client = Groq(api_key=<span class="str">os.environ["GROQ_API_KEY"]</span>)
+
+SEVERITY_LEVELS = {
+  <span class="str">"critical"</span>: <span class="num">1</span>,
+  <span class="str">"urgent"</span>: <span class="num">2</span>,
+  <span class="str">"moderate"</span>: <span class="num">3</span>,
+  <span class="str">"mild"</span>: <span class="num">4</span>
+}
+
+<span class="kw">async def</span> <span class="fn">classify_severity</span>(symptoms: str,
+                          lang: str = <span class="str">"hi"</span>) -> dict:
+  <span class="str">"""
+  Classifies symptom severity.
+  Supports Hindi, Telugu, Tamil, Bengali.
+  """</span>
+  prompt = TRIAGE_TEMPLATE.format(
+    symptoms=symptoms, language=lang
+  )
+  response = <span class="kw">await</span> client.chat.completions.create(
+    model=<span class="str">"mixtral-8x7b-32768"</span>,
+    messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>,
+               <span class="str">"content"</span>: prompt}],
+    temperature=<span class="num">0.1</span>
+  )
+  <span class="kw">return</span> parse_triage_response(response)</code></pre>
+    </div>
+    <div class="code-file">
+      <div class="code-file-header">chainbreaker_gnn.py</div>
+      <pre><code><span class="cm"># ChainBreaker — Graph Attention Network</span>
+<span class="kw">import</span> torch
+<span class="kw">from</span> torch_geometric.nn <span class="kw">import</span> GATConv
+
+<span class="kw">class</span> <span class="fn">FraudGAT</span>(torch.nn.Module):
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, in_channels,
+               hidden, out, heads=<span class="num">4</span>):
+    super().__init__()
+    self.conv1 = GATConv(
+      in_channels, hidden, heads=heads
+    )
+    self.conv2 = GATConv(
+      hidden * heads, out, heads=<span class="num">1</span>
+    )
+    self.freeze_threshold = <span class="num">0.87</span>
+
+  <span class="kw">def</span> <span class="fn">forward</span>(self, x, edge_index):
+    x = self.conv1(x, edge_index).relu()
+    x = torch.nn.functional.dropout(
+      x, p=<span class="num">0.4</span>, training=self.training
+    )
+    <span class="kw">return</span> self.conv2(x, edge_index)
+
+  <span class="kw">def</span> <span class="fn">freeze_mule_chain</span>(self, graph,
+                        scores):
+    <span class="cm"># Freeze all nodes above threshold</span>
+    suspects = scores > self.freeze_threshold
+    <span class="kw">return</span> self._propagate_freeze(
+      graph, suspects
+    )</code></pre>
+    </div>
+    <div class="code-file">
+      <div class="code-file-header">trustloan_scoring.py</div>
+      <pre><code><span class="cm"># TrustLoan — 42 UPI behavioral signals</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> xgboost <span class="kw">as</span> xgb
+
+SIGNAL_CATEGORIES = {
+  <span class="str">"consistency"</span>: [<span class="str">"txn_regularity"</span>,
+                   <span class="str">"merchant_loyalty"</span>,
+                   <span class="str">"timing_pattern"</span>],
+  <span class="str">"velocity"</span>:    [<span class="str">"daily_txn_rate"</span>,
+                   <span class="str">"weekly_volume"</span>],
+  <span class="str">"diversity"</span>:   [<span class="str">"merchant_types"</span>,
+                   <span class="str">"geo_spread"</span>],
+  <span class="cm"># ... 39 more signals</span>
+}
+
+<span class="kw">class</span> <span class="fn">TrustScorer</span>:
+  <span class="kw">def</span> <span class="fn">score_gig_worker</span>(self, upi_data):
+    features = self._extract_42_signals(
+      upi_data
+    )
+    raw_score = self.model.predict_proba(
+      features
+    )[<span class="num">0</span>][<span class="num">1</span>]
+    <span class="kw">return</span> {
+      <span class="str">"trust_score"</span>: round(raw_score * <span class="num">900</span>),
+      <span class="str">"band"</span>: self._get_band(raw_score),
+      <span class="str">"explanation"</span>: self._shap_explain()
+    }</code></pre>
+    </div>
+    <div class="code-file">
+      <div class="code-file-header">365_day_8.html</div>
+      <pre><code><span class="cm">&lt;!-- Day 8: This very landing page --&gt;</span>
+<span class="kw">&lt;!DOCTYPE html&gt;</span>
+<span class="kw">&lt;html</span> lang=<span class="str">"en"</span><span class="kw">&gt;</span>
+<span class="kw">&lt;head&gt;</span>
+  <span class="cm">&lt;!-- No frameworks. No libraries.
+       Just raw creativity and JS. --&gt;</span>
+  <span class="kw">&lt;title&gt;</span>Kaif Ansari<span class="kw">&lt;/title&gt;</span>
+<span class="kw">&lt;/head&gt;</span>
+
+<span class="cm">&lt;!--
+  Day 8 of 365.
+  Constellation maze entry.
+  Big bang transition.
+  Hand-drawn life map.
+  Three easter eggs.
+
+  Most devs would take a week.
+  I took one day.
+
+  See you on Day 9.
+  — Kaif
+--&gt;</span></code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Glitch Overlay -->
+<div id="glitch-overlay"><div class="glitch-line"></div></div>
+
+<script>
+// ═══════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursorDot.style.left=mx+'px';cursorDot.style.top=my+'px';
+});
+(function animCursor(){
+  cx+=(mx-cx)*.12;cy+=(my-cy)*.12;
+  cursor.style.left=cx+'px';cursor.style.top=cy+'px';
+  requestAnimationFrame(animCursor);
+})();
+
+// ═══════════════════════════════════════
+// PHASE 1: CONSTELLATION MAZE
+// ═══════════════════════════════════════
+const mazeCanvas=document.getElementById('maze-canvas');
+const mctx=mazeCanvas.getContext('2d');
+let W,H,stars=[],checkpoints=[],playerPos={x:-1,y:-1};
+let passedCP=0,mazeSolved=false,mouseOnCanvas=false;
+
+function resizeMaze(){
+  W=mazeCanvas.width=window.innerWidth;
+  H=mazeCanvas.height=window.innerHeight;
+  initMaze();
+}
+
+// Star trail history for comet effect
+let trailPoints=[];
+let shootingStars=[];
+let nebulaClouds=[];
+let bgConstellations=[];
+
+function spawnShootingStar(){
+  const side=Math.random()<.5?'top':'left';
+  let x,y,vx,vy;
+  if(side==='top'){x=Math.random()*W;y=-10;vx=(Math.random()-.3)*6;vy=Math.random()*5+3;}
+  else{x=-10;y=Math.random()*H*.6;vx=Math.random()*6+3;vy=Math.random()*3+1;}
+  shootingStars.push({x,y,vx,vy,len:Math.random()*80+40,a:1,r:Math.random()*.8+.3,trail:[]});
+}
+
+function initMaze(){
+  stars=[];
+  // Layer 1: tiny distant stars
+  for(let i=0;i<700;i++){
+    stars.push({x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*.45+.08,a:Math.random()*.55+.08,
+      speed:Math.random()*.3+.08,phase:Math.random()*Math.PI*2,
+      type:'tiny',color:'232,223,200'});
+  }
+  // Layer 2: medium colored stars
+  const palette=['232,223,200','180,210,255','255,220,180','210,255,210','255,210,230','200,230,255'];
+  for(let i=0;i<220;i++){
+    stars.push({x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*.85+.25,a:Math.random()*.75+.15,
+      speed:Math.random()*.5+.18,phase:Math.random()*Math.PI*2,
+      type:'medium',color:palette[Math.floor(Math.random()*palette.length)]});
+  }
+  // Layer 3: bright spiked stars
+  for(let i=0;i<55;i++){
+    stars.push({x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*1.6+.9,a:.95,
+      speed:Math.random()*.35+.12,phase:Math.random()*Math.PI*2,
+      type:'bright',color:'232,223,200',spikeLen:Math.random()*10+5});
+  }
+  // Layer 4: giant anchor stars (very few, very bright)
+  for(let i=0;i<8;i++){
+    stars.push({x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*1.2+1.8,a:1,
+      speed:Math.random()*.2+.05,phase:Math.random()*Math.PI*2,
+      type:'giant',color:'255,245,220',spikeLen:Math.random()*18+10});
+  }
+
+  // Nebula clouds
+  nebulaClouds=[];
+  const nebulaColors=['rgba(50,70,160,0.045)','rgba(90,30,110,0.04)','rgba(20,90,70,0.035)',
+    'rgba(140,50,30,0.03)','rgba(30,70,130,0.05)','rgba(80,20,100,0.035)'];
+  for(let i=0;i<7;i++){
+    nebulaClouds.push({x:Math.random()*W,y:Math.random()*H,
+      rx:Math.random()*W*.3+W*.06,ry:Math.random()*H*.22+H*.05,
+      color:nebulaColors[i%nebulaColors.length],rotation:Math.random()*Math.PI});
+  }
+
+  // Background decorative constellations
+  bgConstellations=[];
+  for(let c=0;c<5;c++){
+    const bx=Math.random()*W,by=Math.random()*H,pts=[];
+    const n=Math.floor(Math.random()*4)+3;
+    for(let p=0;p<n;p++) pts.push({x:bx+(Math.random()-.5)*W*.2,y:by+(Math.random()-.5)*H*.2});
+    bgConstellations.push({pts,alpha:Math.random()*.035+.015});
+  }
+
+  shootingStars=[];
+  // Seed a few shooting stars
+  for(let i=0;i<3;i++) setTimeout(spawnShootingStar,Math.random()*4000);
+
+  // Random interactive path patterns
+  const patterns=[
+    (cx,cy)=>[{x:cx-W*.35,y:cy+H*.2},{x:cx-W*.2,y:cy-H*.15},{x:cx-W*.05,y:cy+H*.1},
+      {x:cx+W*.1,y:cy-H*.18},{x:cx+W*.2,y:cy+H*.05},{x:cx+W*.28,y:cy-H*.12},{x:cx+W*.36,y:cy+H*.08}],
+    (cx,cy)=>[{x:cx-W*.38,y:cy-H*.05},{x:cx-W*.25,y:cy+H*.2},{x:cx-W*.1,y:cy-H*.05},
+      {x:cx+W*.05,y:cy+H*.18},{x:cx+W*.18,y:cy-H*.08},{x:cx+W*.3,y:cy+H*.15},{x:cx+W*.4,y:cy-H*.02}],
+    (cx,cy)=>[{x:cx-W*.4,y:cy+H*.25},{x:cx-W*.26,y:cy+H*.08},{x:cx-W*.12,y:cy-H*.06},
+      {x:cx+W*.02,y:cy-H*.16},{x:cx+W*.16,y:cy-H*.22},{x:cx+W*.28,y:cy-H*.1},{x:cx+W*.38,y:cy+H*.02}],
+    (cx,cy)=>[{x:cx-W*.38,y:cy-H*.12},{x:cx-W*.24,y:cy+H*.18},{x:cx-W*.08,y:cy-H*.05},
+      {x:cx+W*.06,y:cy+H*.2},{x:cx+W*.2,y:cy-H*.1},{x:cx+W*.3,y:cy+H*.06},{x:cx+W*.38,y:cy-H*.15}],
+    (cx,cy)=>[{x:cx-W*.36,y:cy+H*.02},{x:cx-W*.22,y:cy-H*.1},{x:cx-W*.06,y:cy+H*.16},
+      {x:cx+W*.08,y:cy-H*.08},{x:cx+W*.2,y:cy+H*.12},{x:cx+W*.3,y:cy-H*.05},{x:cx+W*.38,y:cy+H*.14}],
+    (cx,cy)=>[{x:cx-W*.34,y:cy},{x:cx-W*.18,y:cy-H*.22},{x:cx-W*.04,y:cy+H*.05},
+      {x:cx+W*.08,y:cy-H*.2},{x:cx+W*.22,y:cy+H*.08},{x:cx+W*.32,y:cy-H*.14},{x:cx+W*.4,y:cy+H*.06}],
+  ];
+  const pick=patterns[Math.floor(Math.random()*patterns.length)];
+  checkpoints=pick(W/2,H/2);
+  passedCP=0;
+  playerPos={x:-1,y:-1};
+  trailPoints=[];
+}
+
+resizeMaze();
+window.addEventListener('resize',resizeMaze);
+
+mazeCanvas.addEventListener('mousemove',e=>{
+  if(mazeSolved) return;
+  mouseOnCanvas=true;
+  playerPos={x:e.clientX,y:e.clientY};
+  checkMazeProgress();
+});
+mazeCanvas.addEventListener('mouseleave',()=>mouseOnCanvas=false);
+
+function checkMazeProgress(){
+  if(passedCP>=checkpoints.length) return;
+  const cp=checkpoints[passedCP];
+  const dist=Math.hypot(playerPos.x-cp.x,playerPos.y-cp.y);
+  if(dist<36){
+    passedCP++;
+    const pct=(passedCP/checkpoints.length)*100;
+    document.getElementById('maze-progress-fill').style.width=pct+'%';
+    if(passedCP>=checkpoints.length) triggerBigBang();
+  }
+}
+
+let t=0;
+function drawMaze(){
+  if(mazeSolved) return;
+  mctx.clearRect(0,0,W,H);
+  t+=.008;
+
+  // draw background stars
+  stars.forEach(s=>{
+    const flicker=.4+.6*Math.sin(t*s.speed+s.phase);
+    mctx.beginPath();
+    mctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    mctx.fillStyle=`rgba(232,223,200,${s.a*flicker})`;
+    mctx.fill();
+  });
+
+  // draw constellation path lines
+  mctx.save();
+  for(let i=0;i<checkpoints.length-1;i++){
+    const a=checkpoints[i],b=checkpoints[i+1];
+    const passed=i<passedCP-1;
+    const active=i===passedCP-1;
+    mctx.beginPath();
+    mctx.moveTo(a.x,a.y);
+    mctx.lineTo(b.x,b.y);
+    mctx.setLineDash([4,8]);
+    if(passed){
+      mctx.strokeStyle='rgba(126,184,247,0.5)';
+      mctx.lineWidth=1.5;
+    } else if(active){
+      mctx.strokeStyle=`rgba(126,184,247,${.2+.15*Math.sin(t*3)})`;
+      mctx.lineWidth=1;
+    } else {
+      mctx.strokeStyle='rgba(126,184,247,0.07)';
+      mctx.lineWidth=.8;
+    }
+    mctx.stroke();
+    mctx.setLineDash([]);
+  }
+  mctx.restore();
+
+  // draw checkpoint stars
+  checkpoints.forEach((cp,i)=>{
+    const passed=i<passedCP;
+    const isCurrent=i===passedCP;
+    const pulse=.5+.5*Math.sin(t*2.5+i*.8);
+
+    if(isCurrent){
+      // pulse ring
+      mctx.beginPath();
+      mctx.arc(cp.x,cp.y,20+10*pulse,0,Math.PI*2);
+      mctx.strokeStyle=`rgba(126,184,247,${.3*pulse})`;
+      mctx.lineWidth=1;mctx.stroke();
+    }
+
+    // star shape
+    drawStar(cp.x,cp.y,passed?6:isCurrent?5:3.5,
+      passed?'rgba(126,184,247,0.9)':
+      isCurrent?`rgba(240,192,96,${.7+.3*pulse})`:'rgba(126,184,247,0.25)');
+
+    // glow on passed
+    if(passed){
+      mctx.beginPath();
+      mctx.arc(cp.x,cp.y,14,0,Math.PI*2);
+      mctx.fillStyle='rgba(126,184,247,0.06)';mctx.fill();
+    }
+  });
+
+  // draw player trail
+  if(mouseOnCanvas&&playerPos.x>0){
+    mctx.beginPath();
+    mctx.arc(playerPos.x,playerPos.y,3,0,Math.PI*2);
+    mctx.fillStyle='rgba(240,192,96,0.9)';mctx.fill();
+    mctx.beginPath();
+    mctx.arc(playerPos.x,playerPos.y,10,0,Math.PI*2);
+    mctx.fillStyle='rgba(240,192,96,0.1)';mctx.fill();
+  }
+
+  // line from player to next checkpoint
+  if(mouseOnCanvas&&playerPos.x>0&&passedCP<checkpoints.length){
+    const ncp=checkpoints[passedCP];
+    mctx.beginPath();
+    mctx.moveTo(playerPos.x,playerPos.y);
+    mctx.lineTo(ncp.x,ncp.y);
+    mctx.strokeStyle='rgba(240,192,96,0.12)';
+    mctx.lineWidth=1;mctx.setLineDash([3,6]);
+    mctx.stroke();mctx.setLineDash([]);
+  }
+
+  requestAnimationFrame(drawMaze);
+}
+
+function drawStar(x,y,r,color){
+  mctx.save();
+  mctx.translate(x,y);
+  mctx.fillStyle=color;
+  mctx.beginPath();
+  for(let i=0;i<5;i++){
+    const a=Math.PI/5*2*i-Math.PI/2;
+    const ai=a+Math.PI/5;
+    i===0?mctx.moveTo(Math.cos(a)*r,Math.sin(a)*r):mctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+    mctx.lineTo(Math.cos(ai)*(r*.42),Math.sin(ai)*(r*.42));
+  }
+  mctx.closePath();mctx.fill();
+  mctx.restore();
+}
+
+drawMaze();
+
+// ═══════════════════════════════════════
+// PHASE 2: BIG BANG
+// ═══════════════════════════════════════
+function triggerBigBang(){
+  mazeSolved=true;
+  const phaseMaze=document.getElementById('phase-maze');
+  const phaseBang=document.getElementById('phase-bang');
+
+  phaseMaze.style.transition='opacity .8s ease';
+  phaseMaze.style.opacity='0';
+  setTimeout(()=>{
+    phaseMaze.style.display='none';
+    phaseBang.style.display='flex';
+    startBigBang();
+  },800);
+}
+
+function startBigBang(){
+  const bc=document.getElementById('bang-canvas');
+  const bctx=bc.getContext('2d');
+  bc.width=window.innerWidth;bc.height=window.innerHeight;
+  const BW=bc.width,BH=bc.height;
+  const CX=BW/2,CY=BH/2;
+
+  let particles=[];
+  let bangT=0;
+
+  // collect maze stars and explode them from center
+  for(let i=0;i<500;i++){
+    const angle=Math.random()*Math.PI*2;
+    const speed=Math.random()*12+2;
+    particles.push({
+      x:CX,y:CY,
+      vx:Math.cos(angle)*speed,
+      vy:Math.sin(angle)*speed,
+      r:Math.random()*2+.5,
+      a:1,
+      color:Math.random()<.6?'232,223,200':Math.random()<.5?'126,184,247':'240,192,96'
+    });
+  }
+
+  function animBang(){
+    bangT++;
+    bctx.fillStyle='rgba(2,3,10,.15)';
+    bctx.fillRect(0,0,BW,BH);
+
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      p.vx*=.97;p.vy*=.97;
+      p.a-=.006;
+      bctx.beginPath();
+      bctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      bctx.fillStyle=`rgba(${p.color},${Math.max(0,p.a)})`;
+      bctx.fill();
+    });
+
+    // at t=80, show the name
+    if(bangT===80){
+      const nameEl=document.getElementById('bang-name');
+      nameEl.style.transition='opacity 1.2s ease,text-shadow 1.2s ease';
+      nameEl.style.opacity='1';
+      nameEl.style.textShadow='0 0 120px rgba(126,184,247,.6),0 0 40px rgba(126,184,247,.4)';
+      // white flash
+      document.getElementById('phase-bang').style.background='#fff';
+      setTimeout(()=>{
+        document.getElementById('phase-bang').style.transition='background 1.5s ease';
+        document.getElementById('phase-bang').style.background='#02030a';
+      },80);
+    }
+
+    if(bangT<160) requestAnimationFrame(animBang);
+    else enterSite();
+  }
+  animBang();
+}
+
+function enterSite(){
+  const phaseBang=document.getElementById('phase-bang');
+  phaseBang.style.transition='opacity 1.5s ease';
+  phaseBang.style.opacity='0';
+  setTimeout(()=>{
+    phaseBang.style.display='none';
+    const site=document.getElementById('site');
+    site.style.display='block';
+    document.body.classList.add('site-mode');
+    setTimeout(()=>site.style.opacity='1',50);
+    initHeroCanvas();
+  },1500);
+}
+
+// ═══════════════════════════════════════
+// HERO BACKGROUND CANVAS
+// ═══════════════════════════════════════
+function initHeroCanvas(){
+  const hc=document.getElementById('hero-canvas');
+  const hctx=hc.getContext('2d');
+  let ht=0;
+  let hstars=[];
+  function resizeHero(){
+    hc.width=hc.offsetWidth;hc.height=hc.offsetHeight;
+    hstars=[];
+    for(let i=0;i<200;i++){
+      hstars.push({
+        x:Math.random()*hc.width,y:Math.random()*hc.height,
+        r:Math.random()*.8+.2,a:Math.random()*.7,
+        phase:Math.random()*Math.PI*2,speed:Math.random()*.5+.2
+      });
+    }
+  }
+  resizeHero();
+  window.addEventListener('resize',resizeHero);
+  function animHero(){
+    ht+=.008;
+    hctx.clearRect(0,0,hc.width,hc.height);
+    hstars.forEach(s=>{
+      const f=.3+.7*Math.sin(ht*s.speed+s.phase);
+      hctx.beginPath();
+      hctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      hctx.fillStyle=`rgba(232,223,200,${s.a*f})`;
+      hctx.fill();
+    });
+    requestAnimationFrame(animHero);
+  }
+  animHero();
+}
+
+// ═══════════════════════════════════════
+// LIFE MAP — LOCATION DATA
+// ═══════════════════════════════════════
+const locationData={
+  bhilai:{
+    tag:'Born Here · 9 August 2007',
+    title:'Bhilai — The Beginning',
+    date:'This city made me who I am.',
+    body:`Born on 9th August 2007 in Bhilai — a steel city that doesn't make headlines but builds people with iron in their spine. Class 1 through 10 at Milestone Academy. Good years. Karate at Warriors Academy, competing and training seriously. Life felt straightforward: study, train, grow. Then Class 11 happened — and everything shifted. I fell ill near the end of that year. A forced pause that made me ask harder questions. What do I actually want? The answer surprised me.`,
+    tags:['Born 9 Aug 2007','Milestone Academy','Warriors Academy Karate','Bhilai Steel City']
+  },
+  dps:{
+    tag:'Class 11–12 · 2022 — 2024',
+    title:'Delhi Public School, Bhilai',
+    date:'The pivot. PCM + CS. Everything changed.',
+    body:`Switched schools for Class 11. Chose PCM + Computer Science at DPS — a deliberate bet on myself. Quit karate to focus on studies, then discovered MMA during Class 12 and joined a proper gym. Competed at the National Championship in Bantamweight — and came back with a Silver medal. Boards happened simultaneously: Class 10 was 91.8%. Class 12 landed at 79.5%. JEE didn't clear. For a moment, the plan fell apart. Then I realised — the plan was wrong, not me.`,
+    tags:['PCM + CS','Class 12: 79.5%','Class 10: 91.8%','National MMA Silver — Bantamweight']
+  },
+  rungta:{
+    tag:'University · 2023 — 2026',
+    title:'Rungta International Skills University',
+    date:'Where I stopped studying and started building.',
+    body:`BCA wasn't the dream — it was the door. And I kicked it open. AI/ML clicked here in a way no syllabus planned for. I started building real systems, not just submitting assignments. FastAPI, LangChain, PyTorch, XGBoost — learned them by shipping products, not reading textbooks. 365 Days of Code started here. Team Axtryx was formed here. The startup vision crystallised here. My parents want me to consider CAT and MBA after this — and I haven't closed that door. But first, I'm building something worth talking about.`,
+    tags:['BCA — Graduating 2026','AI/ML Self-taught','365 Days of Code','Startup Vision']
+  },
+  hackathon:{
+    tag:'Battlegrounds · 2025 — Present',
+    title:'Hackathon Arenas',
+    date:'Where pressure became proof.',
+    body:`4+ hackathons and counting. JIT Borawan Hackathon — Top 10 finish with MediRoute AI, a multilingual health triage system built in under 48 hours with Team Axtryx. E-Summit 2026 — pitched TrustLoan, an alternative credit scoring model for gig workers, to real investors at RUBI Startup Club. Every hackathon is a compressed lifetime: an idea at midnight, a working product by dawn, and the realisation that you're capable of more than you thought. I show up to win — and I show up every time.`,
+    tags:['JIT Borawan — Top 10','E-Summit 2026','MediRoute AI','TrustLoan Pitch']
+  },
+  axtryx:{
+    tag:'Team · 2025 — Present',
+    title:'Team Axtryx',
+    date:'Not just a team name — a standard.',
+    body:`Axtryx was born in the pressure of a hackathon and survived because of shared conviction. As Team Lead, I don't just manage — I set the pace. MediRoute AI was our first big collaboration: multilingual symptom triage, severity classification, hospital mapping, all built under 48 hours of a real hackathon clock. Leading Axtryx taught me that the best teams aren't assembled — they're forged. You find out who someone really is when the deadline is in 6 hours and the API is breaking.`,
+    tags:['Team Lead','MediRoute AI','48-Hour Builds','Forged Under Pressure']
+  },
+  github:{
+    tag:'Digital Home · 2023 — Present',
+    title:'GitHub — forkaifansari',
+    date:'Where the proof lives.',
+    body:`GitHub is my most honest biography. Every commit is a timestamp. Every repo is a decision to build something real instead of just thinking about it. The 365 Days of Code challenge lives here — one genuine project every day, all public, no filler repos. If you want to understand who I am as a developer, skip this page. Go read my commit history — it tells a better story than any bio ever could.`,
+    tags:['365 Days of Code','forkaifansari','Open Source','Daily Commits']
+  }
+};
+
+// attach map pin clicks
+document.querySelectorAll('.map-pin').forEach(pin=>{
+  pin.addEventListener('click',()=>{
+    const id=pin.getAttribute('data-id');
+    openPopup(id);
+  });
+  pin.style.cursor='pointer';
+});
+
+function openPopup(id){
+  const d=locationData[id];if(!d)return;
+  document.getElementById('p-tag').textContent=d.tag;
+  document.getElementById('p-title').textContent=d.title;
+  document.getElementById('p-date').textContent=d.date;
+  document.getElementById('p-body').textContent=d.body;
+  const tagsEl=document.getElementById('p-tags');
+  tagsEl.innerHTML=d.tags.map(t=>`<span class="popup-chip">${t}</span>`).join('');
+  document.getElementById('location-popup').classList.add('open');
+  document.getElementById('popup-overlay').classList.add('open');
+}
+
+document.getElementById('popup-close').addEventListener('click',closePopup);
+document.getElementById('popup-overlay').addEventListener('click',closePopup);
+function closePopup(){
+  document.getElementById('location-popup').classList.remove('open');
+  document.getElementById('popup-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// EASTER EGG 1: TYPE 'axtryx' ANYWHERE
+// ═══════════════════════════════════════
+let typedBuffer='';
+document.addEventListener('keydown',e=>{
+  typedBuffer+=e.key.toLowerCase();
+  if(typedBuffer.length>8) typedBuffer=typedBuffer.slice(-8);
+  if(typedBuffer.includes('axtryx')) openTerminal();
+});
+
+function openTerminal(){
+  document.getElementById('terminal').classList.add('open');
+  document.getElementById('term-input').focus();
+  typedBuffer='';
+}
+function closeTerminal(){
+  document.getElementById('terminal').classList.remove('open');
+}
+
+// Terminal commands
+const termCmds={
+  help:()=>[
+    {t:'out',m:'Available commands:'},
+    {t:'gold',m:'  whoami      — who is Kaif?'},
+    {t:'gold',m:'  projects    — list all projects'},
+    {t:'gold',m:'  stack       — tech stack'},
+    {t:'gold',m:'  contact     — get in touch'},
+    {t:'gold',m:'  day         — current 365 day'},
+    {t:'gold',m:'  secret      — you already found one'},
+    {t:'gold',m:'  clear       — clear terminal'},
+  ],
+  whoami:()=>[
+    {t:'out',m:'Mohammad Kaif Ansari — Born 9 Aug 2007, Bhilai'},
+    {t:'out',m:'Karate → MMA (National Silver, Bantamweight) → AI/ML Dev'},
+    {t:'out',m:'Class 10: 91.8% | Class 12: 79.5% | JEE: Didn\'t clear'},
+    {t:'out',m:'Chose BCA. Built an empire instead. Team Axtryx Lead.'},
+    {t:'gold',m:'Goal: Build a startup. Solve real problems. Get rich doing it.'},
+  ],
+  projects:()=>[
+    {t:'gold',m:'[1] MediRoute AI   — Health triage, multilingual'},
+    {t:'gold',m:'[2] ChainBreaker   — GNN fraud detection'},
+    {t:'gold',m:'[3] Salary Predict — XGBoost + SHAP'},
+    {t:'gold',m:'[4] TrustLoan      — UPI credit scoring'},
+    {t:'gold',m:'[5] ResumeIQ       — ATS + mock interviews'},
+    {t:'gold',m:'[6] 365 Days       — This whole challenge'},
+  ],
+  stack:()=>[
+    {t:'out',m:'Python, React, Next.js, FastAPI'},
+    {t:'out',m:'LangChain, LangGraph, PyTorch'},
+    {t:'out',m:'XGBoost, SHAP, Groq API'},
+    {t:'out',m:'PostgreSQL, Docker, GCP, Git'},
+  ],
+  contact:()=>[
+    {t:'out',m:'LinkedIn: linkedin.com/in/forkaifansari'},
+    {t:'out',m:'GitHub:   github.com/forkaifansari'},
+    {t:'out',m:'Email:    mohammad.kaif.ansari@rungta.org'},
+  ],
+  day:()=>[{t:'gold',m:`Currently on Day 8 of 365. Streak: ALIVE. 🔥`}],
+  secret:()=>[
+    {t:'err',m:'You found Easter Egg #1.'},
+    {t:'out',m:'Try clicking my name 5 times on the site.'},
+    {t:'out',m:'And find the Live Code button...'},
+  ],
+  clear:()=>'CLEAR',
+};
+
+document.getElementById('term-input').addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  const val=e.target.value.trim().toLowerCase();
+  e.target.value='';
+  const body=document.getElementById('term-body');
+
+  const cmdLine=document.createElement('div');
+  cmdLine.className='term-line cmd';
+  cmdLine.textContent='$ '+val;
+  body.appendChild(cmdLine);
+
+  if(!val) return;
+
+  const fn=termCmds[val];
+  if(!fn){
+    const err=document.createElement('div');
+    err.className='term-line err';
+    err.textContent=`Command not found: ${val}. Type 'help'.`;
+    body.appendChild(err);
+  } else {
+    const result=fn();
+    if(result==='CLEAR'){body.innerHTML='';return;}
+    result.forEach(r=>{
+      const d=document.createElement('div');
+      d.className='term-line '+r.t;
+      d.textContent=r.m;
+      body.appendChild(d);
+    });
+  }
+  body.scrollTop=body.scrollHeight;
+});
+
+// ═══════════════════════════════════════
+// EASTER EGG 2: CLICK NAME 5× GLITCH
+// ═══════════════════════════════════════
+let nameClicks=0;
+document.getElementById('click-name')?.addEventListener('click',()=>{
+  nameClicks++;
+  if(nameClicks>=5){
+    nameClicks=0;
+    triggerGlitch();
+  }
+});
+
+function triggerGlitch(){
+  const overlay=document.getElementById('glitch-overlay');
+  const nameEl=document.getElementById('click-name');
+  overlay.classList.add('active');
+  nameEl.classList.add('glitch');
+  // scramble text
+  const original='Kaif Ansari';
+  const chars='!@#$%^&*XKAIAXTRYX01';
+  let scrambleT=0;
+  const scramble=setInterval(()=>{
+    scrambleT++;
+    if(scrambleT<15){
+      nameEl.textContent=original.split('').map(c=>
+        Math.random()<.5?chars[Math.floor(Math.random()*chars.length)]:c
+      ).join('');
+    } else {
+      nameEl.textContent=original;
+      nameEl.classList.remove('glitch');
+      overlay.classList.remove('active');
+      clearInterval(scramble);
+    }
+  },60);
+}
+
+// ═══════════════════════════════════════
+// EASTER EGG 3: CODE ROOM
+// ═══════════════════════════════════════
+function openCodeRoom(){
+  document.getElementById('code-room').classList.add('open');
+}
+function closeCodeRoom(){
+  document.getElementById('code-room').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════
+const revealEls=document.querySelectorAll('.p-card,.skill-orb,.t-item,.c-link');
+revealEls.forEach(el=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(20px)';
+  el.style.transition='opacity .5s ease,transform .5s ease';
+});
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>{
+        e.target.style.opacity='1';
+        e.target.style.transform='translateY(0)';
+      },i*60);
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:.1});
+revealEls.forEach(el=>observer.observe(el));
+
+// ── skip maze in dev: uncomment this line ──
+// triggerBigBang();
+</script>
+</body>
+</html>
