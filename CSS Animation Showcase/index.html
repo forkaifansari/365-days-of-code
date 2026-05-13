@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 9 — CSS Animation Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;
+  --border:#30363d;--text:#e6edf3;--dim:#8b949e;
+  --green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;
+  --orange:#ffa657;--pink:#f78166;--cyan:#56d364;
+  --gold:#e3b341;--red:#f85149;
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;padding:0}
+
+/* ── HEADER ── */
+header{
+  text-align:center;padding:80px 40px 60px;
+  border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+header::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(88,166,255,.06),transparent);
+  pointer-events:none;
+}
+.header-label{
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:16px;
+  animation:fadein .8s ease both;
+}
+h1{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-style:italic;
+  font-size:clamp(2.5rem,6vw,5rem);
+  color:var(--text);margin-bottom:12px;
+  animation:fadein .8s ease .1s both;
+}
+h1 strong{font-weight:600;color:var(--blue);font-style:normal}
+.header-sub{
+  font-size:11px;color:var(--dim);
+  letter-spacing:.1em;
+  animation:fadein .8s ease .2s both;
+}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── GRID ── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:1px;background:var(--border);
+  padding:0;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--bg2);
+  padding:0;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.card-stage{
+  height:220px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+}
+.card-info{padding:20px 24px}
+.card-num{
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:6px;
+}
+.card-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.15rem;
+  color:var(--text);margin-bottom:4px;
+}
+.card-desc{font-size:11px;color:var(--dim);line-height:1.7;font-weight:300}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 01 — MORPHING BLOB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.blob{
+  width:100px;height:100px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  border-radius:60% 40% 30% 70%/60% 30% 70% 40%;
+  animation:morph 6s ease-in-out infinite;
+  box-shadow:0 0 40px rgba(88,166,255,.25);
+}
+@keyframes morph{
+  0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}
+  25%{border-radius:30% 70% 70% 30%/30% 30% 70% 70%}
+  50%{border-radius:50% 50% 30% 70%/50% 70% 30% 50%}
+  75%{border-radius:70% 30% 50% 50%/30% 50% 70% 50%}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 02 — NEON LOADER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.neon-loader{
+  display:flex;gap:10px;align-items:center;
+}
+.neon-dot{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 10px var(--green),0 0 30px var(--green);
+  animation:neon-bounce 1.2s ease-in-out infinite;
+}
+.neon-dot:nth-child(2){animation-delay:.15s;background:var(--blue);box-shadow:0 0 10px var(--blue),0 0 30px var(--blue)}
+.neon-dot:nth-child(3){animation-delay:.3s;background:var(--purple);box-shadow:0 0 10px var(--purple),0 0 30px var(--purple)}
+.neon-dot:nth-child(4){animation-delay:.45s;background:var(--orange);box-shadow:0 0 10px var(--orange),0 0 30px var(--orange)}
+.neon-dot:nth-child(5){animation-delay:.6s;background:var(--pink);box-shadow:0 0 10px var(--pink),0 0 30px var(--pink)}
+@keyframes neon-bounce{
+  0%,100%{transform:translateY(0);opacity:.6}
+  50%{transform:translateY(-22px);opacity:1}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 03 — TYPEWRITER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.typewriter-wrap{text-align:center}
+.typewriter-label{
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:14px;
+}
+.typewriter{
+  font-size:16px;color:var(--green);
+  white-space:nowrap;overflow:hidden;
+  border-right:2px solid var(--green);
+  width:0;
+  animation:
+    type1 2s steps(18) 0s forwards,
+    blink .7s step-end infinite;
+}
+.typewriter2{
+  font-size:16px;color:var(--blue);
+  white-space:nowrap;overflow:hidden;
+  border-right:2px solid var(--blue);
+  width:0;
+  animation:
+    type2 2s steps(20) 2.5s forwards,
+    blink2 .7s step-end 2.5s infinite;
+  margin-top:8px;
+}
+.typewriter3{
+  font-size:16px;color:var(--orange);
+  white-space:nowrap;overflow:hidden;
+  border-right:2px solid var(--orange);
+  width:0;
+  animation:
+    type3 2s steps(16) 5.2s forwards,
+    blink3 .7s step-end 5.2s infinite;
+  margin-top:8px;
+}
+@keyframes type1{to{width:18ch}}
+@keyframes type2{to{width:20ch}}
+@keyframes type3{to{width:16ch}}
+@keyframes blink{50%{border-color:transparent}}
+@keyframes blink2{50%{border-color:transparent}}
+@keyframes blink3{50%{border-color:transparent}}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 04 — ORBIT SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.orbit-system{position:relative;width:160px;height:160px}
+.orbit-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:24px;height:24px;border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 20px var(--gold);
+  animation:pulse-center 2s ease-in-out infinite;
+}
+@keyframes pulse-center{
+  0%,100%{box-shadow:0 0 20px var(--gold)}
+  50%{box-shadow:0 0 40px var(--gold),0 0 60px rgba(227,179,65,.3)}
+}
+.orbit-ring{
+  position:absolute;top:50%;left:50%;
+  border-radius:50%;border:1px solid rgba(255,255,255,.06);
+}
+.orbit-ring-1{
+  width:80px;height:80px;
+  margin-top:-40px;margin-left:-40px;
+  animation:spin 3s linear infinite;
+}
+.orbit-ring-2{
+  width:130px;height:130px;
+  margin-top:-65px;margin-left:-65px;
+  animation:spin 6s linear infinite reverse;
+}
+.orbit-ring-3{
+  width:160px;height:160px;
+  margin-top:-80px;margin-left:-80px;
+  animation:spin 10s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.planet{
+  position:absolute;border-radius:50%;
+}
+.planet-1{
+  width:10px;height:10px;top:-5px;left:50%;margin-left:-5px;
+  background:var(--blue);
+  box-shadow:0 0 8px var(--blue);
+}
+.planet-2{
+  width:8px;height:8px;top:-4px;left:50%;margin-left:-4px;
+  background:var(--purple);
+  box-shadow:0 0 8px var(--purple);
+}
+.planet-3{
+  width:6px;height:6px;top:-3px;left:50%;margin-left:-3px;
+  background:var(--pink);
+  box-shadow:0 0 6px var(--pink);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 05 — GLITCH TEXT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.glitch-wrap{text-align:center;position:relative}
+.glitch-text{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:2.8rem;
+  color:var(--text);
+  position:relative;display:inline-block;
+  animation:glitch-main 3s steps(2) infinite;
+}
+.glitch-text::before,.glitch-text::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+}
+.glitch-text::before{
+  color:var(--blue);
+  animation:glitch-before 3s steps(2) infinite;
+  clip-path:polygon(0 0,100% 0,100% 45%,0 45%);
+}
+.glitch-text::after{
+  color:var(--red);
+  animation:glitch-after 3s steps(2) infinite;
+  clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);
+}
+@keyframes glitch-main{
+  0%,90%,100%{transform:none}
+  92%{transform:translate(-2px,1px)}
+  94%{transform:translate(2px,-1px)}
+  96%{transform:translate(-1px,2px)}
+}
+@keyframes glitch-before{
+  0%,90%,100%{transform:none;opacity:0}
+  92%{transform:translate(-4px,0);opacity:1}
+  94%{transform:translate(4px,0);opacity:1}
+  96%{transform:translate(-2px,0);opacity:1}
+}
+@keyframes glitch-after{
+  0%,90%,100%{transform:none;opacity:0}
+  93%{transform:translate(4px,0);opacity:1}
+  95%{transform:translate(-4px,0);opacity:1}
+  97%{transform:translate(2px,0);opacity:1}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 06 — PARTICLE RING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.ring-wrap{position:relative;width:140px;height:140px}
+.ring-particle{
+  position:absolute;width:6px;height:6px;
+  border-radius:50%;top:50%;left:50%;
+  background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);
+}
+.ring-particle:nth-child(1){animation:orbit-p 4s linear infinite;transform-origin:-64px 0}
+.ring-particle:nth-child(2){animation:orbit-p 4s linear infinite .5s;transform-origin:-64px 0;background:var(--blue);box-shadow:0 0 6px var(--blue)}
+.ring-particle:nth-child(3){animation:orbit-p 4s linear infinite 1s;transform-origin:-64px 0;background:var(--purple);box-shadow:0 0 6px var(--purple)}
+.ring-particle:nth-child(4){animation:orbit-p 4s linear infinite 1.5s;transform-origin:-64px 0;background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.ring-particle:nth-child(5){animation:orbit-p 4s linear infinite 2s;transform-origin:-64px 0;background:var(--pink);box-shadow:0 0 6px var(--pink)}
+.ring-particle:nth-child(6){animation:orbit-p 4s linear infinite 2.5s;transform-origin:-64px 0;background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.ring-particle:nth-child(7){animation:orbit-p 4s linear infinite 3s;transform-origin:-64px 0}
+.ring-particle:nth-child(8){animation:orbit-p 4s linear infinite 3.5s;transform-origin:-64px 0;background:var(--green);box-shadow:0 0 6px var(--green)}
+@keyframes orbit-p{to{transform:rotate(360deg) translateX(64px)}}
+.ring-center-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:9px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase;
+  text-align:center;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 07 — LOADING BAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.loader-wrap{width:80%;display:flex;flex-direction:column;gap:14px}
+.loader-row{display:flex;flex-direction:column;gap:5px}
+.loader-label{display:flex;justify-content:space-between;font-size:9px;color:var(--dim);letter-spacing:.1em}
+.loader-track{
+  height:4px;background:var(--bg3);
+  border-radius:2px;overflow:hidden;
+}
+.loader-fill{
+  height:100%;border-radius:2px;
+  animation:load 2s cubic-bezier(.34,1.56,.64,1) infinite alternate;
+}
+.loader-fill-1{background:linear-gradient(90deg,var(--green),var(--cyan));animation-delay:0s}
+.loader-fill-2{background:linear-gradient(90deg,var(--blue),var(--purple));animation-delay:.3s}
+.loader-fill-3{background:linear-gradient(90deg,var(--orange),var(--gold));animation-delay:.6s}
+.loader-fill-4{background:linear-gradient(90deg,var(--pink),var(--purple));animation-delay:.9s}
+@keyframes load{
+  0%{width:20%}100%{width:95%}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 08 — CARD FLIP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.flip-card{
+  width:120px;height:140px;
+  perspective:600px;cursor:pointer;
+}
+.flip-inner{
+  width:100%;height:100%;
+  transform-style:preserve-3d;
+  animation:flip-auto 4s ease-in-out infinite;
+  position:relative;
+}
+@keyframes flip-auto{
+  0%,40%{transform:rotateY(0)}
+  50%,90%{transform:rotateY(180deg)}
+  100%{transform:rotateY(360deg)}
+}
+.flip-front,.flip-back{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  border-radius:8px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  border:1px solid var(--border);
+}
+.flip-front{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+}
+.flip-back{
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  transform:rotateY(180deg);
+}
+.flip-icon{font-size:2rem;margin-bottom:8px}
+.flip-text{font-size:10px;color:var(--dim);letter-spacing:.1em;text-align:center}
+.flip-back .flip-text{color:rgba(255,255,255,.9)}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 09 — WAVE TEXT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.wave-text{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:2.2rem;
+  display:flex;gap:0;
+}
+.wave-text span{
+  display:inline-block;
+  animation:wave-letter 2s ease-in-out infinite;
+  color:var(--text);
+}
+.wave-text span:nth-child(1){animation-delay:0s;color:var(--blue)}
+.wave-text span:nth-child(2){animation-delay:.1s;color:var(--blue)}
+.wave-text span:nth-child(3){animation-delay:.2s;color:var(--blue)}
+.wave-text span:nth-child(4){animation-delay:.3s;color:var(--purple)}
+.wave-text span:nth-child(5){animation-delay:.4s;color:var(--purple)}
+.wave-text span:nth-child(6){animation-delay:.5s;color:var(--pink)}
+.wave-text span:nth-child(7){animation-delay:.6s;color:var(--pink)}
+.wave-text span:nth-child(8){animation-delay:.7s;color:var(--orange)}
+.wave-text span:nth-child(9){animation-delay:.8s;color:var(--orange)}
+.wave-text span:nth-child(10){animation-delay:.9s;color:var(--gold)}
+@keyframes wave-letter{
+  0%,100%{transform:translateY(0)}
+  40%{transform:translateY(-12px)}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATION 10 — MATRIX RAIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.matrix{
+  display:flex;gap:6px;align-items:flex-start;
+  height:140px;overflow:hidden;
+}
+.matrix-col{
+  display:flex;flex-direction:column;
+  gap:3px;
+  animation:rain-fall linear infinite;
+}
+.matrix-col:nth-child(1){animation-duration:2.1s;animation-delay:0s}
+.matrix-col:nth-child(2){animation-duration:1.8s;animation-delay:.3s}
+.matrix-col:nth-child(3){animation-duration:2.4s;animation-delay:.6s}
+.matrix-col:nth-child(4){animation-duration:1.9s;animation-delay:.1s}
+.matrix-col:nth-child(5){animation-duration:2.2s;animation-delay:.8s}
+.matrix-col:nth-child(6){animation-duration:1.7s;animation-delay:.4s}
+.matrix-col:nth-child(7){animation-duration:2.6s;animation-delay:.2s}
+@keyframes rain-fall{
+  0%{transform:translateY(-140px);opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(140px);opacity:0}
+}
+.matrix-char{
+  font-size:12px;color:var(--green);
+  font-family:'DM Mono',monospace;
+  opacity:.8;
+}
+.matrix-char:first-child{color:#fff;opacity:1;text-shadow:0 0 8px var(--green)}
+.matrix-char:nth-child(2){opacity:.9;text-shadow:0 0 4px var(--green)}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:48px;
+  border-top:1px solid var(--border);
+}
+footer p{font-size:10px;color:var(--dim);letter-spacing:.15em;line-height:2}
+footer a{color:var(--blue);text-decoration:none}
+footer span{color:var(--green)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Day 9 of 365 · CSS Animations</div>
+  <h1><strong>10</strong> Pure CSS Animations</h1>
+  <div class="header-sub">zero javascript · zero libraries · pure css magic</div>
+</header>
+
+<div class="grid">
+
+  <!-- 01 MORPHING BLOB -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="blob"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">01 / 10</div>
+      <div class="card-name">Morphing Blob</div>
+      <div class="card-desc">border-radius animation across 4 keyframes. Eight values — four horizontal, four vertical — create organic shape-shifting.</div>
+    </div>
+  </div>
+
+  <!-- 02 NEON LOADER -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="neon-loader">
+        <div class="neon-dot"></div>
+        <div class="neon-dot"></div>
+        <div class="neon-dot"></div>
+        <div class="neon-dot"></div>
+        <div class="neon-dot"></div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">02 / 10</div>
+      <div class="card-name">Neon Bounce Loader</div>
+      <div class="card-desc">Staggered animation-delay on siblings. box-shadow creates the neon glow effect without any external filters.</div>
+    </div>
+  </div>
+
+  <!-- 03 TYPEWRITER -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="typewriter-wrap">
+        <div class="typewriter-label">stdout</div>
+        <div class="typewriter">print("Hello World")</div>
+        <div class="typewriter2">git commit -m "Day 9"</div>
+        <div class="typewriter3">python showcase.py</div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">03 / 10</div>
+      <div class="card-name">Typewriter Effect</div>
+      <div class="card-desc">steps() timing function with overflow:hidden and animated width. The cursor blinks via border-right keyframes.</div>
+    </div>
+  </div>
+
+  <!-- 04 ORBIT -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="orbit-system">
+        <div class="orbit-center"></div>
+        <div class="orbit-ring orbit-ring-1">
+          <div class="planet planet-1"></div>
+        </div>
+        <div class="orbit-ring orbit-ring-2">
+          <div class="planet planet-2"></div>
+        </div>
+        <div class="orbit-ring orbit-ring-3">
+          <div class="planet planet-3"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">04 / 10</div>
+      <div class="card-name">Orbit System</div>
+      <div class="card-desc">Nested rotate animations at different durations and directions. Planets stay upright via counter-rotation of parent.</div>
+    </div>
+  </div>
+
+  <!-- 05 GLITCH -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="glitch-wrap">
+        <div class="glitch-text" data-text="AXTRYX">AXTRYX</div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">05 / 10</div>
+      <div class="card-name">Glitch Text</div>
+      <div class="card-desc">CSS ::before and ::after pseudo-elements with clip-path and staggered translate animations. data-text attribute mirrors the content.</div>
+    </div>
+  </div>
+
+  <!-- 06 PARTICLE RING -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="ring-wrap">
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-particle"></div>
+        <div class="ring-center-text">orbit<br>ring</div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">06 / 10</div>
+      <div class="card-name">Particle Ring</div>
+      <div class="card-desc">transform-origin set outside the element creates orbital motion. Eight particles staggered with animation-delay create a ring trail.</div>
+    </div>
+  </div>
+
+  <!-- 07 LOADING BARS -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="loader-wrap">
+        <div class="loader-row">
+          <div class="loader-label"><span>Python</span><span>95%</span></div>
+          <div class="loader-track"><div class="loader-fill loader-fill-1"></div></div>
+        </div>
+        <div class="loader-row">
+          <div class="loader-label"><span>FastAPI</span><span>90%</span></div>
+          <div class="loader-track"><div class="loader-fill loader-fill-2"></div></div>
+        </div>
+        <div class="loader-row">
+          <div class="loader-label"><span>React</span><span>85%</span></div>
+          <div class="loader-track"><div class="loader-fill loader-fill-3"></div></div>
+        </div>
+        <div class="loader-row">
+          <div class="loader-label"><span>LangChain</span><span>78%</span></div>
+          <div class="loader-track"><div class="loader-fill loader-fill-4"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">07 / 10</div>
+      <div class="card-name">Skill Bars</div>
+      <div class="card-desc">Width animation with cubic-bezier(0.34, 1.56, 0.64, 1) — the overshoot creates a spring-like bounce at 100%.</div>
+    </div>
+  </div>
+
+  <!-- 08 CARD FLIP -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="flip-card">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="flip-icon">🚀</div>
+            <div class="flip-text">Team<br>Axtryx</div>
+          </div>
+          <div class="flip-back">
+            <div class="flip-icon">💡</div>
+            <div class="flip-text">365 Days<br>of Code</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">08 / 10</div>
+      <div class="card-name">3D Card Flip</div>
+      <div class="card-desc">perspective on parent + transform-style:preserve-3d + backface-visibility:hidden. Pure CSS 3D, no JS needed.</div>
+    </div>
+  </div>
+
+  <!-- 09 WAVE TEXT -->
+  <div class="card">
+    <div class="card-stage">
+      <div class="wave-text">
+        <span>B</span><span>U</span><span>I</span><span>L</span>
+        <span>D</span><span>E</span><span>R</span><span>.</span>
+        <span>.</span><span>.</span>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">09 / 10</div>
+      <div class="card-name">Wave Text</div>
+      <div class="card-desc">Each letter is a separate span with staggered animation-delay. translateY with an ease-in-out creates the wave motion.</div>
+    </div>
+  </div>
+
+  <!-- 10 MATRIX RAIN -->
+  <div class="card">
+    <div class="card-stage" style="background:#000">
+      <div class="matrix">
+        <div class="matrix-col">
+          <div class="matrix-char">K</div>
+          <div class="matrix-char">A</div>
+          <div class="matrix-char">I</div>
+          <div class="matrix-char">F</div>
+          <div class="matrix-char">3</div>
+          <div class="matrix-char">6</div>
+          <div class="matrix-char">5</div>
+        </div>
+        <div class="matrix-col">
+          <div class="matrix-char">A</div>
+          <div class="matrix-char">X</div>
+          <div class="matrix-char">T</div>
+          <div class="matrix-char">R</div>
+          <div class="matrix-char">Y</div>
+          <div class="matrix-char">X</div>
+          <div class="matrix-char">!</div>
+        </div>
+        <div class="matrix-col">
+          <div class="matrix-char">0</div>
+          <div class="matrix-char">1</div>
+          <div class="matrix-char">0</div>
+          <div class="matrix-char">1</div>
+          <div class="matrix-char">1</div>
+          <div class="matrix-char">0</div>
+          <div class="matrix-char">1</div>
+        </div>
+        <div class="matrix-col">
+          <div class="matrix-char">P</div>
+          <div class="matrix-char">Y</div>
+          <div class="matrix-char">T</div>
+          <div class="matrix-char">H</div>
+          <div class="matrix-char">O</div>
+          <div class="matrix-char">N</div>
+          <div class="matrix-char">3</div>
+        </div>
+        <div class="matrix-col">
+          <div class="matrix-char">B</div>
+          <div class="matrix-char">C</div>
+          <div class="matrix-char">A</div>
+          <div class="matrix-char">2</div>
+          <div class="matrix-char">6</div>
+          <div class="matrix-char">A</div>
+          <div class="matrix-char">I</div>
+        </div>
+        <div class="matrix-col">
+          <div class="matrix-char">G</div>
+          <div class="matrix-char">I</div>
+          <div class="matrix-char">T</div>
+          <div class="matrix-char">H</div>
+          <div class="matrix-char">U</div>
+          <div class="matrix-char">B</div>
+          <div class="matrix-char">!</div>
+        </div>
+        <div class="matrix-col">
+          <div class="matrix-char">M</div>
+          <div class="matrix-char">L</div>
+          <div class="matrix-char">A</div>
+          <div class="matrix-char">I</div>
+          <div class="matrix-char">W</div>
+          <div class="matrix-char">E</div>
+          <div class="matrix-char">B</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-num">10 / 10</div>
+      <div class="card-name">Matrix Rain</div>
+      <div class="card-desc">translateY animation from -140px to +140px with staggered delays per column. First char styled brighter to simulate the "head".</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>
+    Day 9 of 365 · <span>10 animations · 0 JavaScript</span><br>
+    Built by <a href="https://www.linkedin.com/in/forkaifansari" target="_blank">Kaif Ansari</a> ·
+    <a href="https://github.com/forkaifansari/365-days-of-code" target="_blank">GitHub →</a>
+  </p>
+</footer>
+
+</body>
+</html>
