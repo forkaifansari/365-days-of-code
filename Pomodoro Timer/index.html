@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 10 — Pomodoro Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;
+  --border:#30363d;--text:#e6edf3;--dim:#8b949e;
+  --green:#3fb950;--blue:#58a6ff;--orange:#ffa657;
+  --red:#f85149;--purple:#bc8cff;--gold:#e3b341;
+
+  --mode-color:var(--red);
+}
+
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Mono',monospace;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;
+  transition:background .5s ease;
+  overflow:hidden;
+}
+
+/* BG GLOW */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 50%,
+    rgba(var(--glow-rgb),.06),transparent 70%);
+  pointer-events:none;transition:background .5s ease;
+}
+body.work{--glow-rgb:248,81,73}
+body.short{--glow-rgb:63,185,80}
+body.long{--glow-rgb:88,166,255}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:40px}
+.day-badge{
+  display:inline-block;font-size:9px;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--border);padding:4px 14px;
+  margin-bottom:16px;border-radius:2px;
+}
+.app-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-style:italic;
+  font-size:2rem;color:var(--text);
+  margin-bottom:4px;
+}
+.app-sub{font-size:10px;color:var(--dim);letter-spacing:.1em}
+
+/* MODE TABS */
+.modes{
+  display:flex;gap:2px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:6px;padding:4px;
+  margin-bottom:40px;
+}
+.mode-btn{
+  padding:8px 20px;border:none;background:none;
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);cursor:pointer;border-radius:4px;
+  transition:all .2s;
+}
+.mode-btn.active{
+  background:var(--mode-color);
+  color:#fff;
+}
+.mode-btn:hover:not(.active){color:var(--text)}
+
+/* TIMER RING */
+.timer-wrap{
+  position:relative;width:260px;height:260px;
+  margin-bottom:40px;
+}
+#ring-svg{width:100%;height:100%;transform:rotate(-90deg)}
+#ring-bg{fill:none;stroke:var(--bg2);stroke-width:8}
+#ring-prog{
+  fill:none;stroke:var(--mode-color);stroke-width:8;
+  stroke-linecap:round;
+  stroke-dasharray:691;
+  stroke-dashoffset:0;
+  transition:stroke-dashoffset .8s ease,stroke .5s ease;
+  filter:drop-shadow(0 0 6px var(--mode-color));
+}
+
+.timer-inner{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.timer-mode-label{
+  font-size:9px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--mode-color);margin-bottom:8px;
+  transition:color .5s;
+}
+.timer-display{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:4rem;
+  color:var(--text);line-height:1;
+  letter-spacing:-.02em;
+  margin-bottom:4px;
+  transition:color .2s;
+}
+.timer-session{
+  font-size:9px;color:var(--dim);letter-spacing:.15em;
+}
+
+/* CONTROLS */
+.controls{
+  display:flex;gap:12px;align-items:center;
+  margin-bottom:40px;
+}
+.ctrl-btn{
+  width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--bg2);color:var(--dim);
+  font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.ctrl-btn:hover{border-color:var(--dim);color:var(--text)}
+
+.play-btn{
+  width:68px;height:68px;
+  background:var(--mode-color);
+  border:none;color:#fff;font-size:22px;
+  border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+  box-shadow:0 0 20px rgba(var(--glow-rgb),.3);
+}
+.play-btn:hover{
+  transform:scale(1.06);
+  box-shadow:0 0 30px rgba(var(--glow-rgb),.5);
+}
+.play-btn:active{transform:scale(.97)}
+
+/* SESSIONS */
+.sessions-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  margin-bottom:32px;
+}
+.sessions-label{
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);
+}
+.session-dots{display:flex;gap:8px}
+.session-dot{
+  width:10px;height:10px;border-radius:50%;
+  border:1.5px solid var(--border);
+  transition:all .3s ease;
+}
+.session-dot.done{
+  background:var(--mode-color);
+  border-color:var(--mode-color);
+  box-shadow:0 0 8px var(--mode-color);
+}
+
+/* STATS */
+.stats{
+  display:flex;gap:32px;
+  border-top:1px solid var(--border);
+  padding-top:24px;
+  text-align:center;
+}
+.stat{display:flex;flex-direction:column;gap:4px}
+.stat-n{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:1.6rem;
+  color:var(--text);line-height:1;
+}
+.stat-l{font-size:9px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* SETTINGS PANEL */
+.settings-toggle{
+  position:fixed;top:20px;right:20px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:6px;padding:8px 12px;
+  font-size:10px;color:var(--dim);cursor:pointer;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:all .2s;
+}
+.settings-toggle:hover{color:var(--text);border-color:var(--dim)}
+
+.settings-panel{
+  position:fixed;top:60px;right:20px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:20px;
+  width:220px;z-index:100;
+  display:none;
+}
+.settings-panel.open{display:block}
+.settings-title{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:16px;
+}
+.setting-row{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:12px;
+}
+.setting-label{font-size:11px;color:var(--text)}
+.setting-input{
+  width:56px;background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text);font-family:'DM Mono',monospace;
+  font-size:11px;padding:4px 8px;border-radius:4px;
+  text-align:center;
+}
+.settings-save{
+  width:100%;padding:8px;margin-top:8px;
+  background:var(--mode-color);border:none;
+  color:#fff;font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:4px;cursor:pointer;transition:opacity .2s;
+}
+.settings-save:hover{opacity:.85}
+
+/* NOTIFICATION TOAST */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:6px;padding:12px 24px;
+  font-size:12px;color:var(--text);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;z-index:200;
+  border-left:3px solid var(--mode-color);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* HISTORY */
+.history-wrap{
+  position:fixed;bottom:20px;left:20px;
+  font-size:9px;color:var(--dim);letter-spacing:.1em;
+}
+.history-item{
+  margin-bottom:3px;
+  animation:fadein .3s ease;
+}
+@keyframes fadein{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+
+/* DARK MODE TOGGLE */
+.theme-dot{
+  position:fixed;top:20px;left:20px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--mode-color);
+  box-shadow:0 0 10px var(--mode-color);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.4);opacity:.7}
+}
+</style>
+</head>
+<body class="work">
+
+<div class="theme-dot" id="theme-dot"></div>
+
+<button class="settings-toggle" onclick="toggleSettings()">⚙ settings</button>
+<div class="settings-panel" id="settings">
+  <div class="settings-title">Durations (minutes)</div>
+  <div class="setting-row">
+    <span class="setting-label">🍅 Work</span>
+    <input class="setting-input" id="set-work" type="number" value="25" min="1" max="60">
+  </div>
+  <div class="setting-row">
+    <span class="setting-label">☕ Short break</span>
+    <input class="setting-input" id="set-short" type="number" value="5" min="1" max="30">
+  </div>
+  <div class="setting-row">
+    <span class="setting-label">🌙 Long break</span>
+    <input class="setting-input" id="set-long" type="number" value="15" min="1" max="60">
+  </div>
+  <button class="settings-save" onclick="saveSettings()">Apply</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="header">
+  <div class="day-badge">Day 10 of 365</div>
+  <div class="app-title">Pomodoro Timer</div>
+  <div class="app-sub">focus · rest · repeat</div>
+</div>
+
+<div class="modes">
+  <button class="mode-btn active" id="btn-work" onclick="setMode('work')">🍅 Work</button>
+  <button class="mode-btn" id="btn-short" onclick="setMode('short')">☕ Short</button>
+  <button class="mode-btn" id="btn-long" onclick="setMode('long')">🌙 Long</button>
+</div>
+
+<div class="timer-wrap">
+  <svg id="ring-svg" viewBox="0 0 220 220">
+    <circle id="ring-bg" cx="110" cy="110" r="100"/>
+    <circle id="ring-prog" cx="110" cy="110" r="100"/>
+  </svg>
+  <div class="timer-inner">
+    <div class="timer-mode-label" id="mode-label">Focus Time</div>
+    <div class="timer-display" id="display">25:00</div>
+    <div class="timer-session" id="session-label">Session 1 of 4</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" onclick="resetTimer()" title="Reset">↺</button>
+  <button class="play-btn" id="play-btn" onclick="toggleTimer()">▶</button>
+  <button class="ctrl-btn" onclick="skipSession()" title="Skip">⏭</button>
+</div>
+
+<div class="sessions-wrap">
+  <div class="sessions-label">Pomodoros completed today</div>
+  <div class="session-dots" id="dots"></div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <span class="stat-n" id="stat-sessions">0</span>
+    <span class="stat-l">Sessions</span>
+  </div>
+  <div class="stat">
+    <span class="stat-n" id="stat-focus">0</span>
+    <span class="stat-l">Min focused</span>
+  </div>
+  <div class="stat">
+    <span class="stat-n" id="stat-streak">0</span>
+    <span class="stat-l">Day streak</span>
+  </div>
+</div>
+
+<div class="history-wrap" id="history"></div>
+
+<script>
+// ── CONFIG ──
+let DURATIONS = { work:25, short:5, long:15 };
+const MODES = {
+  work:  { label:'Focus Time',   color:'#f85149', rgb:'248,81,73',   bodyClass:'work'  },
+  short: { label:'Short Break',  color:'#3fb950', rgb:'63,185,80',   bodyClass:'short' },
+  long:  { label:'Long Break',   color:'#58a6ff', rgb:'88,166,255',  bodyClass:'long'  },
+};
+
+let currentMode = 'work';
+let timeLeft = DURATIONS.work * 60;
+let totalTime = DURATIONS.work * 60;
+let isRunning = false;
+let interval = null;
+let completedSessions = 0;
+let focusMinutes = 0;
+let sessionInCycle = 1; // 1–4 before long break
+
+// ── RING ──
+const CIRC = 2 * Math.PI * 100; // r=100
+const ringProg = document.getElementById('ring-prog');
+ringProg.style.strokeDasharray = CIRC;
+
+function updateRing(){
+  const progress = timeLeft / totalTime;
+  ringProg.style.strokeDashoffset = CIRC * (1 - progress);
+}
+
+// ── DISPLAY ──
+function updateDisplay(){
+  const m = Math.floor(timeLeft/60);
+  const s = timeLeft % 60;
+  document.getElementById('display').textContent =
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  document.title = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} — Pomodoro`;
+  updateRing();
+}
+
+// ── MODE ──
+function setMode(mode){
+  if(isRunning) pauseTimer();
+  currentMode = mode;
+  const cfg = MODES[mode];
+  timeLeft = DURATIONS[mode] * 60;
+  totalTime = timeLeft;
+
+  // update colors via CSS vars
+  document.body.className = cfg.bodyClass;
+  document.documentElement.style.setProperty('--mode-color', cfg.color);
+  document.documentElement.style.setProperty('--glow-rgb', cfg.rgb);
+  ringProg.style.stroke = cfg.color;
+
+  document.getElementById('mode-label').textContent = cfg.label;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+mode).classList.add('active');
+  document.getElementById('session-label').textContent =
+    mode==='work' ? `Session ${sessionInCycle} of 4` : cfg.label;
+
+  updateDisplay();
+  document.getElementById('play-btn').textContent = '▶';
+  isRunning = false;
+}
+
+// ── TIMER ──
+function toggleTimer(){
+  if(isRunning) pauseTimer();
+  else startTimer();
+}
+
+function startTimer(){
+  isRunning = true;
+  document.getElementById('play-btn').textContent = '⏸';
+  interval = setInterval(()=>{
+    timeLeft--;
+    updateDisplay();
+    if(currentMode==='work') focusMinutes = Math.floor((totalTime-timeLeft)/60);
+    if(timeLeft <= 0) onComplete();
+  },1000);
+}
+
+function pauseTimer(){
+  isRunning = false;
+  clearInterval(interval);
+  document.getElementById('play-btn').textContent = '▶';
+}
+
+function resetTimer(){
+  pauseTimer();
+  timeLeft = DURATIONS[currentMode]*60;
+  totalTime = timeLeft;
+  updateDisplay();
+}
+
+function skipSession(){
+  pauseTimer();
+  onComplete(true);
+}
+
+function onComplete(skipped=false){
+  pauseTimer();
+  beep();
+
+  if(currentMode==='work'){
+    completedSessions++;
+    focusMinutes += Math.ceil(DURATIONS.work/1);
+    updateStats();
+    addDot();
+    addHistory(`🍅 Focus session ${completedSessions} done`);
+
+    if(sessionInCycle>=4){
+      sessionInCycle=1;
+      showToast('🌙 4 sessions done! Take a long break.');
+      setTimeout(()=>setMode('long'),1200);
+    } else {
+      sessionInCycle++;
+      showToast('☕ Nice work! Take a short break.');
+      setTimeout(()=>setMode('short'),1200);
+    }
+  } else {
+    showToast('🍅 Break over. Time to focus!');
+    setTimeout(()=>setMode('work'),1200);
+  }
+}
+
+// ── BEEP ──
+function beep(){
+  try{
+    const ctx = new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=currentMode==='work'?660:440;
+    o.type='sine';
+    g.gain.setValueAtTime(.3,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.8);
+    o.start();o.stop(ctx.currentTime+.8);
+  }catch(e){}
+}
+
+// ── DOTS ──
+function addDot(){
+  const wrap=document.getElementById('dots');
+  if(wrap.children.length>=8){
+    wrap.innerHTML='';
+  }
+  const dot=document.createElement('div');
+  dot.className='session-dot done';
+  wrap.appendChild(dot);
+}
+
+function initDots(){
+  const wrap=document.getElementById('dots');
+  wrap.innerHTML='';
+  for(let i=0;i<4;i++){
+    const dot=document.createElement('div');
+    dot.className='session-dot';
+    wrap.appendChild(dot);
+  }
+}
+initDots();
+
+// ── STATS ──
+function updateStats(){
+  document.getElementById('stat-sessions').textContent=completedSessions;
+  document.getElementById('stat-focus').textContent=completedSessions*DURATIONS.work;
+
+  // streak from localStorage
+  const today=new Date().toDateString();
+  const last=localStorage.getItem('pomo-last-date');
+  let streak=parseInt(localStorage.getItem('pomo-streak')||'0');
+  if(last!==today){
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    if(last===yesterday.toDateString()) streak++;
+    else streak=1;
+    localStorage.setItem('pomo-streak',streak);
+    localStorage.setItem('pomo-last-date',today);
+  }
+  document.getElementById('stat-streak').textContent=streak;
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── HISTORY ──
+function addHistory(msg){
+  const wrap=document.getElementById('history');
+  const el=document.createElement('div');
+  el.className='history-item';
+  const time=new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+  el.textContent=`${time} ${msg}`;
+  wrap.insertBefore(el,wrap.firstChild);
+  if(wrap.children.length>5) wrap.removeChild(wrap.lastChild);
+}
+
+// ── SETTINGS ──
+function toggleSettings(){
+  document.getElementById('settings').classList.toggle('open');
+}
+
+function saveSettings(){
+  DURATIONS.work  = parseInt(document.getElementById('set-work').value)||25;
+  DURATIONS.short = parseInt(document.getElementById('set-short').value)||5;
+  DURATIONS.long  = parseInt(document.getElementById('set-long').value)||15;
+  document.getElementById('settings').classList.remove('open');
+  setMode(currentMode);
+  showToast('✅ Settings saved!');
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&e.target.tagName!=='INPUT'){e.preventDefault();toggleTimer();}
+  if(e.code==='KeyR') resetTimer();
+  if(e.code==='KeyS') skipSession();
+  if(e.code==='Digit1') setMode('work');
+  if(e.code==='Digit2') setMode('short');
+  if(e.code==='Digit3') setMode('long');
+});
+
+// ── INIT ──
+updateDisplay();
+updateStats();
+</script>
+</body>
+</html>
