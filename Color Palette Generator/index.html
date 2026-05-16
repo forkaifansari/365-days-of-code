@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 12 — Color Palette Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;
+  --border:#30363d;--text:#e6edf3;--dim:#8b949e;
+  --green:#3fb950;--blue:#58a6ff;--orange:#ffa657;
+  --red:#f85149;--purple:#bc8cff;--gold:#e3b341;
+}
+html,body{min-height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Mono',monospace;
+  padding:40px 20px;
+  background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(88,166,255,.04),transparent);
+}
+
+/* ── HEADER ── */
+.header{text-align:center;margin-bottom:40px}
+.day-badge{
+  font-size:9px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--dim);border:1px solid var(--border);
+  padding:4px 14px;border-radius:2px;display:inline-block;
+  margin-bottom:12px;
+}
+.app-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-style:italic;
+  font-size:2.2rem;color:var(--text);margin-bottom:6px;
+}
+.app-sub{font-size:10px;color:var(--dim);letter-spacing:.1em}
+
+/* ── CONTROLS ── */
+.controls{
+  display:flex;gap:10px;flex-wrap:wrap;
+  justify-content:center;align-items:center;
+  margin-bottom:40px;
+}
+
+.color-picker-wrap{
+  position:relative;
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:8px 16px;
+}
+.color-picker-wrap label{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);
+}
+#base-color{
+  width:36px;height:36px;border:none;
+  border-radius:50%;cursor:pointer;
+  padding:0;background:none;
+  outline:none;
+}
+
+.ctrl-btn{
+  padding:10px 20px;border-radius:8px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;border:1px solid var(--border);
+  background:var(--bg2);color:var(--dim);
+  transition:all .2s;
+}
+.ctrl-btn:hover{color:var(--text);border-color:var(--dim)}
+.ctrl-btn.active{
+  background:var(--blue);color:#fff;
+  border-color:var(--blue);
+}
+
+/* HARMONY SELECTOR */
+.harmony-wrap{
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:32px;
+}
+.harmony-btn{
+  padding:7px 16px;border-radius:20px;
+  font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--dim);
+  transition:all .2s;
+}
+.harmony-btn:hover{color:var(--text);border-color:var(--dim)}
+.harmony-btn.active{
+  background:var(--bg2);color:var(--text);
+  border-color:var(--text);
+}
+
+/* ── PALETTE DISPLAY ── */
+.palette-section{
+  max-width:900px;margin:0 auto 48px;
+}
+.palette-label{
+  font-size:9px;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.palette-label::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+
+/* MAIN PALETTE SWATCHES */
+.palette-main{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:0;border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);
+  margin-bottom:12px;
+  height:200px;
+}
+.swatch{
+  position:relative;cursor:pointer;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;padding:14px 12px;
+  transition:flex .3s ease;
+  overflow:hidden;
+}
+.swatch:hover{flex:2}
+.swatch-label{
+  font-size:10px;font-weight:500;
+  letter-spacing:.04em;
+  opacity:0;transform:translateY(6px);
+  transition:all .2s;
+  text-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.swatch:hover .swatch-label{opacity:1;transform:none}
+.swatch-hex{
+  font-size:9px;letter-spacing:.1em;
+  opacity:0;transform:translateY(4px);
+  transition:all .2s .05s;
+}
+.swatch:hover .swatch-hex{opacity:.8;transform:none}
+
+.copy-flash{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.3);
+  font-size:12px;color:#fff;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;
+  backdrop-filter:blur(2px);
+}
+.swatch.copied .copy-flash{opacity:1}
+
+/* TINTS & SHADES */
+.shades-grid{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:4px;margin-bottom:8px;
+}
+.shade-swatch{
+  height:40px;border-radius:4px;
+  cursor:pointer;position:relative;
+  transition:transform .15s;
+}
+.shade-swatch:hover{transform:scaleY(1.2);z-index:2}
+.shade-swatch::after{
+  content:attr(data-hex);
+  position:absolute;bottom:calc(100%+4px);left:50%;
+  transform:translateX(-50%);
+  font-size:8px;color:var(--text);
+  background:var(--bg2);border:1px solid var(--border);
+  padding:2px 6px;border-radius:3px;
+  white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity .15s;
+}
+.shade-swatch:hover::after{opacity:1}
+
+/* ── SAVED PALETTES ── */
+.saved-section{max-width:900px;margin:0 auto 48px}
+.saved-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+}
+.saved-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+  transition:border-color .2s;
+}
+.saved-card:hover{border-color:var(--dim)}
+.saved-swatches{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  height:60px;
+}
+.saved-swatch{cursor:pointer;transition:flex .2s}
+.saved-swatch:hover{flex:2}
+.saved-info{
+  padding:10px 14px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.saved-name{font-size:10px;color:var(--dim);letter-spacing:.08em}
+.saved-del{
+  background:none;border:none;color:var(--dim);
+  cursor:pointer;font-size:14px;
+  transition:color .2s;padding:0;
+}
+.saved-del:hover{color:var(--red)}
+
+/* ── CSS EXPORT ── */
+.export-section{max-width:900px;margin:0 auto 48px}
+.export-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;
+}
+.export-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;border-bottom:1px solid var(--border);
+}
+.export-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+.export-copy{
+  font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 12px;border-radius:4px;
+  background:var(--bg3);color:var(--dim);
+  border:1px solid var(--border);cursor:pointer;
+  transition:all .2s;
+}
+.export-copy:hover{color:var(--text);border-color:var(--dim)}
+.export-copy.copied{color:var(--green);border-color:var(--green)}
+pre{
+  padding:20px;font-size:11px;line-height:1.9;
+  color:var(--dim);overflow-x:auto;
+}
+.css-var{color:var(--purple)}
+.css-val{color:var(--green)}
+.css-com{color:rgba(139,148,158,.4);font-style:italic}
+
+/* ── COLOR INFO ── */
+.color-info{
+  max-width:900px;margin:0 auto 48px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:12px;
+}
+.info-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:16px;
+}
+.info-swatch-big{
+  width:100%;height:60px;border-radius:6px;
+  margin-bottom:12px;cursor:pointer;
+  transition:transform .15s;
+}
+.info-swatch-big:hover{transform:scale(1.02)}
+.info-name{font-size:11px;color:var(--text);margin-bottom:8px;font-weight:500}
+.info-vals{display:flex;flex-direction:column;gap:4px}
+.info-val{
+  display:flex;justify-content:space-between;
+  font-size:9px;
+}
+.info-key{color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.info-v{color:var(--text)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--green);
+  border-radius:6px;padding:10px 20px;
+  font-size:11px;color:var(--text);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;z-index:999;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── FOOTER ── */
+.footer{
+  text-align:center;font-size:9px;color:var(--dim);
+  letter-spacing:.12em;margin-top:40px;
+}
+.footer a{color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="day-badge">Day 12 of 365</div>
+  <div class="app-title">Color Palette Generator</div>
+  <div class="app-sub">pick a base color · choose a harmony · copy hex codes</div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="color-picker-wrap">
+    <label>Base Color</label>
+    <input type="color" id="base-color" value="#58a6ff" oninput="generate()">
+  </div>
+  <button class="ctrl-btn" onclick="randomColor()">🎲 Random</button>
+  <button class="ctrl-btn" onclick="savePalette()">💾 Save</button>
+  <button class="ctrl-btn" onclick="exportCSS()">📋 Copy CSS</button>
+</div>
+
+<!-- HARMONY SELECTOR -->
+<div class="harmony-wrap">
+  <button class="harmony-btn active" onclick="setHarmony('complementary')">Complementary</button>
+  <button class="harmony-btn" onclick="setHarmony('analogous')">Analogous</button>
+  <button class="harmony-btn" onclick="setHarmony('triadic')">Triadic</button>
+  <button class="harmony-btn" onclick="setHarmony('tetradic')">Tetradic</button>
+  <button class="harmony-btn" onclick="setHarmony('split')">Split Complementary</button>
+  <button class="harmony-btn" onclick="setHarmony('monochromatic')">Monochromatic</button>
+</div>
+
+<!-- MAIN PALETTE -->
+<div class="palette-section">
+  <div class="palette-label">Current Palette</div>
+  <div class="palette-main" id="palette-main"></div>
+
+  <div class="palette-label" style="margin-top:28px">Tints & Shades</div>
+  <div class="shades-grid" id="shades-grid"></div>
+</div>
+
+<!-- COLOR INFO -->
+<div class="palette-label" style="max-width:900px;margin:0 auto 16px;font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)">
+  Color Details
+  <span style="flex:1;height:1px;background:var(--border);display:inline-block;margin-left:12px;vertical-align:middle"></span>
+</div>
+<div class="color-info" id="color-info"></div>
+
+<!-- CSS EXPORT -->
+<div class="export-section">
+  <div class="palette-label">CSS Variables</div>
+  <div class="export-box">
+    <div class="export-header">
+      <div class="export-title">style.css</div>
+      <button class="export-copy" id="copy-btn" onclick="copyCSS()">Copy</button>
+    </div>
+    <pre id="css-output"></pre>
+  </div>
+</div>
+
+<!-- SAVED PALETTES -->
+<div class="saved-section">
+  <div class="palette-label">Saved Palettes</div>
+  <div class="saved-grid" id="saved-grid">
+    <div style="font-size:10px;color:var(--dim);padding:20px 0">No saved palettes yet. Hit 💾 Save above.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="footer">
+  Built by <a href="https://www.linkedin.com/in/forkaifansari" target="_blank">Kaif Ansari</a> ·
+  <a href="https://github.com/forkaifansari/365-days-of-code" target="_blank">GitHub →</a>
+</div>
+
+<script>
+// ── COLOR MATH ──
+function hexToHsl(hex){
+  let r=parseInt(hex.slice(1,3),16)/255;
+  let g=parseInt(hex.slice(3,5),16)/255;
+  let b=parseInt(hex.slice(5,7),16)/255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=s=0}
+  else{
+    const d=max-min;
+    s=l>.5?d/(2-max-min):d/(max+min);
+    switch(max){
+      case r:h=(g-b)/d+(g<b?6:0);break;
+      case g:h=(b-r)/d+2;break;
+      case b:h=(r-g)/d+4;break;
+    }
+    h/=6;
+  }
+  return [Math.round(h*360),Math.round(s*100),Math.round(l*100)];
+}
+
+function hslToHex(h,s,l){
+  h=((h%360)+360)%360;
+  s=Math.max(0,Math.min(100,s));
+  l=Math.max(0,Math.min(100,l));
+  s/=100;l/=100;
+  const c=(1-Math.abs(2*l-1))*s;
+  const x=c*(1-Math.abs((h/60)%2-1));
+  const m=l-c/2;
+  let r,g,b;
+  if(h<60){r=c;g=x;b=0}
+  else if(h<120){r=x;g=c;b=0}
+  else if(h<180){r=0;g=c;b=x}
+  else if(h<240){r=0;g=x;b=c}
+  else if(h<300){r=x;g=0;b=c}
+  else{r=c;g=0;b=x}
+  const toHex=n=>Math.round((n+m)*255).toString(16).padStart(2,'0');
+  return '#'+toHex(r)+toHex(g)+toHex(b);
+}
+
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16);
+  const g=parseInt(hex.slice(3,5),16);
+  const b=parseInt(hex.slice(5,7),16);
+  return {r,g,b};
+}
+
+function getLuminance(hex){
+  const {r,g,b}=hexToRgb(hex);
+  return 0.299*r+0.587*g+0.114*b;
+}
+
+function textColor(hex){
+  return getLuminance(hex)>140?'#1a1209':'#faf6ef';
+}
+
+function colorName(h,s,l){
+  if(s<10) return l>80?'White':l>50?'Gray':'Black';
+  if(l>85) return 'Light '+hueN(h);
+  if(l<20) return 'Dark '+hueN(h);
+  return hueN(h);
+}
+function hueN(h){
+  if(h<15||h>=345) return 'Red';
+  if(h<45) return 'Orange';
+  if(h<75) return 'Yellow';
+  if(h<150) return 'Green';
+  if(h<195) return 'Cyan';
+  if(h<255) return 'Blue';
+  if(h<285) return 'Indigo';
+  if(h<330) return 'Purple';
+  return 'Pink';
+}
+
+// ── HARMONY GENERATORS ──
+let currentHarmony = 'complementary';
+function setHarmony(h){
+  currentHarmony=h;
+  document.querySelectorAll('.harmony-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent.toLowerCase().replace(/ /g,'')===h.replace(/ /g,''));
+  });
+  generate();
+}
+
+function generatePalette(hex, harmony){
+  const [h,s,l]=hexToHsl(hex);
+  switch(harmony){
+    case 'complementary':
+      return [hex, hslToHex(h+30,s,l), hslToHex(h+60,s*0.8,l*1.1), hslToHex(h+180,s,l), hslToHex(h+210,s*0.9,l*0.9)];
+    case 'analogous':
+      return [hslToHex(h-40,s,l), hslToHex(h-20,s,l), hex, hslToHex(h+20,s,l), hslToHex(h+40,s,l)];
+    case 'triadic':
+      return [hex, hslToHex(h+30,s*.8,l*1.1), hslToHex(h+120,s,l), hslToHex(h+150,s*.8,l*.9), hslToHex(h+240,s,l)];
+    case 'tetradic':
+      return [hex, hslToHex(h+90,s,l), hslToHex(h+180,s,l), hslToHex(h+270,s,l), hslToHex(h+45,s*.7,l*1.1)];
+    case 'split':
+      return [hex, hslToHex(h+30,s*.8,l), hslToHex(h+150,s,l), hslToHex(h+180,s*.7,l*1.1), hslToHex(h+210,s,l)];
+    case 'monochromatic':
+      return [hslToHex(h,s,l*0.4), hslToHex(h,s,l*0.6), hex, hslToHex(h,s*0.7,Math.min(l*1.3,90)), hslToHex(h,s*0.4,Math.min(l*1.6,95))];
+    default:
+      return [hex];
+  }
+}
+
+function generateShades(hex){
+  const [h,s]=hexToHsl(hex);
+  const shades=[];
+  for(let i=0;i<10;i++){
+    const l=10+i*8;
+    shades.push(hslToHex(h,s,l));
+  }
+  return shades;
+}
+
+// ── RENDER ──
+let currentPalette=[];
+
+function generate(){
+  const hex=document.getElementById('base-color').value;
+  currentPalette=generatePalette(hex,currentHarmony);
+  renderPalette();
+  renderShades(hex);
+  renderColorInfo();
+  renderCSS();
+}
+
+function renderPalette(){
+  const wrap=document.getElementById('palette-main');
+  wrap.innerHTML='';
+  const names=['Primary','Accent','Tertiary','Complement','Dark'];
+  currentPalette.forEach((hex,i)=>{
+    const s=document.createElement('div');
+    s.className='swatch';
+    s.style.background=hex;
+    const tc=textColor(hex);
+    s.style.color=tc;
+    s.innerHTML=`
+      <div class="copy-flash">Copied!</div>
+      <div class="swatch-label">${names[i]||'Color '+(i+1)}</div>
+      <div class="swatch-hex">${hex.toUpperCase()}</div>
+    `;
+    s.onclick=()=>copyHex(hex,s);
+    wrap.appendChild(s);
+  });
+}
+
+function renderShades(hex){
+  const shades=generateShades(hex);
+  const wrap=document.getElementById('shades-grid');
+  wrap.innerHTML='';
+  shades.forEach(h=>{
+    const s=document.createElement('div');
+    s.className='shade-swatch';
+    s.style.background=h;
+    s.setAttribute('data-hex',h.toUpperCase());
+    s.onclick=()=>{ copyHex(h); };
+    wrap.appendChild(s);
+  });
+}
+
+function renderColorInfo(){
+  const wrap=document.getElementById('color-info');
+  wrap.innerHTML='';
+  const names=['Primary','Accent','Tertiary','Complement','Dark'];
+  currentPalette.forEach((hex,i)=>{
+    const [h,s,l]=hexToHsl(hex);
+    const {r,g,b}=hexToRgb(hex);
+    const card=document.createElement('div');
+    card.className='info-card';
+    card.innerHTML=`
+      <div class="info-swatch-big" style="background:${hex}" onclick="copyHex('${hex}')"></div>
+      <div class="info-name">${names[i]||'Color '+(i+1)} · ${colorName(h,s,l)}</div>
+      <div class="info-vals">
+        <div class="info-val"><span class="info-key">HEX</span><span class="info-v">${hex.toUpperCase()}</span></div>
+        <div class="info-val"><span class="info-key">RGB</span><span class="info-v">${r},${g},${b}</span></div>
+        <div class="info-val"><span class="info-key">HSL</span><span class="info-v">${h}°,${s}%,${l}%</span></div>
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function renderCSS(){
+  const names=['primary','accent','tertiary','complement','dark'];
+  let css=`:root {\n`;
+  css+=`  <span class="css-com">/* ${currentHarmony} palette */</span>\n`;
+  currentPalette.forEach((hex,i)=>{
+    css+=`  <span class="css-var">--color-${names[i]||'color-'+(i+1)}</span>: <span class="css-val">${hex.toUpperCase()}</span>;\n`;
+  });
+  css+=`}`;
+  document.getElementById('css-output').innerHTML=css;
+}
+
+// ── ACTIONS ──
+function copyHex(hex,el=null){
+  navigator.clipboard.writeText(hex.toUpperCase()).then(()=>{
+    showToast(`Copied ${hex.toUpperCase()}!`);
+    if(el){
+      el.classList.add('copied');
+      setTimeout(()=>el.classList.remove('copied'),1200);
+    }
+  });
+}
+
+function copyCSS(){
+  const names=['primary','accent','tertiary','complement','dark'];
+  let css=`:root {\n  /* ${currentHarmony} palette */\n`;
+  currentPalette.forEach((hex,i)=>{
+    css+=`  --color-${names[i]||'color-'+(i+1)}: ${hex.toUpperCase()};\n`;
+  });
+  css+=`}`;
+  navigator.clipboard.writeText(css).then(()=>{
+    const btn=document.getElementById('copy-btn');
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
+    showToast('CSS variables copied!');
+  });
+}
+
+function exportCSS(){ copyCSS(); }
+
+function randomColor(){
+  const hex='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+  document.getElementById('base-color').value=hex;
+  generate();
+}
+
+// ── SAVE ──
+let savedPalettes=JSON.parse(localStorage.getItem('palettes')||'[]');
+
+function savePalette(){
+  const name=currentHarmony+' '+new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+  savedPalettes.unshift({name,colors:[...currentPalette],id:Date.now()});
+  if(savedPalettes.length>12) savedPalettes.pop();
+  localStorage.setItem('palettes',JSON.stringify(savedPalettes));
+  renderSaved();
+  showToast('Palette saved!');
+}
+
+function deleteSaved(id){
+  savedPalettes=savedPalettes.filter(p=>p.id!==id);
+  localStorage.setItem('palettes',JSON.stringify(savedPalettes));
+  renderSaved();
+}
+
+function loadSaved(colors){
+  currentPalette=colors;
+  renderPalette();
+  renderColorInfo();
+  renderCSS();
+  showToast('Palette loaded!');
+}
+
+function renderSaved(){
+  const wrap=document.getElementById('saved-grid');
+  if(!savedPalettes.length){
+    wrap.innerHTML='<div style="font-size:10px;color:var(--dim);padding:20px 0">No saved palettes yet.</div>';
+    return;
+  }
+  wrap.innerHTML='';
+  savedPalettes.forEach(p=>{
+    const card=document.createElement('div');
+    card.className='saved-card';
+    card.innerHTML=`
+      <div class="saved-swatches">
+        ${p.colors.map(c=>`<div class="saved-swatch" style="background:${c}" onclick="copyHex('${c}')"></div>`).join('')}
+      </div>
+      <div class="saved-info">
+        <span class="saved-name">${p.name}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button style="background:none;border:none;font-size:10px;color:var(--blue);cursor:pointer;font-family:'DM Mono',monospace;" onclick="loadSaved(${JSON.stringify(p.colors)})">Load</button>
+          <button class="saved-del" onclick="deleteSaved(${p.id})">✕</button>
+        </div>
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.key==='r'&&!e.ctrlKey) randomColor();
+  if(e.key==='s'&&!e.ctrlKey) savePalette();
+});
+
+// ── INIT ──
+generate();
+renderSaved();
+</script>
+</body>
+</html>
