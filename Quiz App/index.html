@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 13 — Quiz App</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+  --border:#30363d;--text:#e6edf3;--dim:#8b949e;
+  --green:#3fb950;--blue:#58a6ff;--orange:#ffa657;
+  --red:#f85149;--purple:#bc8cff;--gold:#e3b341;
+}
+html,body{min-height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Mono',monospace;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;
+  background-image:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(188,140,255,.05),transparent);
+}
+
+/* ── SCREENS ── */
+.screen{display:none;width:100%;max-width:640px;animation:fadein .4s ease}
+.screen.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ── HEADER ── */
+.day-badge{
+  font-size:9px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--dim);border:1px solid var(--border);
+  padding:4px 14px;border-radius:2px;display:inline-block;
+  margin-bottom:16px;
+}
+
+/* ── HOME SCREEN ── */
+#screen-home{text-align:center}
+.home-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-style:italic;
+  font-size:3rem;color:var(--text);margin-bottom:8px;
+}
+.home-sub{font-size:11px;color:var(--dim);letter-spacing:.08em;margin-bottom:40px}
+
+.category-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:10px;margin-bottom:32px;
+}
+.cat-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:20px 16px;
+  cursor:pointer;text-align:left;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.cat-card::before{
+  content:'';position:absolute;inset:0;
+  background:var(--cat-color);opacity:0;
+  transition:opacity .2s;
+}
+.cat-card:hover::before{opacity:.06}
+.cat-card:hover{border-color:var(--cat-color);transform:translateY(-2px)}
+.cat-card.selected{
+  border-color:var(--cat-color);
+  background:var(--bg3);
+}
+.cat-icon{font-size:1.8rem;margin-bottom:10px;display:block}
+.cat-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px}
+.cat-count{font-size:9px;color:var(--dim);letter-spacing:.1em}
+
+.difficulty-wrap{
+  display:flex;gap:8px;justify-content:center;margin-bottom:28px;
+}
+.diff-btn{
+  padding:7px 20px;border-radius:20px;
+  font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--dim);transition:all .2s;
+}
+.diff-btn:hover{color:var(--text);border-color:var(--dim)}
+.diff-btn.active{background:var(--bg2);color:var(--text);border-color:var(--text)}
+
+.start-btn{
+  width:100%;padding:16px;border-radius:10px;
+  font-family:'DM Mono',monospace;
+  font-size:12px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border:none;
+  background:var(--purple);color:#fff;
+  transition:all .2s;
+  box-shadow:0 4px 20px rgba(188,140,255,.25);
+}
+.start-btn:hover{background:#c89fff;box-shadow:0 4px 28px rgba(188,140,255,.35)}
+.start-btn:active{transform:scale(.98)}
+
+/* ── QUIZ SCREEN ── */
+#screen-quiz{}
+
+.quiz-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:20px;
+}
+.quiz-meta{font-size:10px;color:var(--dim);letter-spacing:.1em}
+.quiz-score-live{
+  font-size:10px;color:var(--green);letter-spacing:.1em;
+}
+
+/* TIMER BAR */
+.timer-wrap{margin-bottom:24px}
+.timer-bar-bg{
+  height:4px;background:var(--bg3);border-radius:2px;
+  overflow:hidden;margin-bottom:6px;
+}
+.timer-bar-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--green),var(--blue));
+  transition:width .9s linear,background .3s;
+}
+.timer-bar-fill.warning{background:linear-gradient(90deg,var(--orange),var(--red))}
+.timer-text{font-size:9px;color:var(--dim);text-align:right;letter-spacing:.1em}
+
+/* QUESTION CARD */
+.question-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:28px;margin-bottom:16px;
+}
+.question-num{
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--purple);margin-bottom:14px;
+}
+.question-text{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.3rem;
+  color:var(--text);line-height:1.5;
+  margin-bottom:8px;
+}
+.question-cat{
+  font-size:9px;color:var(--dim);letter-spacing:.1em;
+}
+
+/* OPTIONS */
+.options-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;margin-bottom:16px;
+}
+.option-btn{
+  padding:16px 14px;border-radius:10px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  text-align:left;cursor:pointer;
+  border:1px solid var(--border);
+  background:var(--bg2);color:var(--text);
+  transition:all .15s;
+  display:flex;align-items:center;gap:10px;
+  line-height:1.5;
+}
+.option-btn:hover:not(:disabled){
+  background:var(--bg3);border-color:var(--purple);
+  transform:translateY(-1px);
+}
+.option-btn:disabled{cursor:default}
+.option-btn.correct{
+  background:rgba(63,185,80,.12);
+  border-color:var(--green);color:var(--green);
+}
+.option-btn.wrong{
+  background:rgba(248,81,73,.12);
+  border-color:var(--red);color:var(--red);
+}
+.option-btn.revealed{
+  background:rgba(63,185,80,.06);
+  border-color:rgba(63,185,80,.3);
+}
+.option-letter{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:500;flex-shrink:0;
+  transition:background .15s;
+}
+.option-btn.correct .option-letter{background:var(--green);color:#fff}
+.option-btn.wrong .option-letter{background:var(--red);color:#fff}
+
+/* EXPLANATION */
+.explanation{
+  background:var(--bg3);border:1px solid var(--border);
+  border-left:3px solid var(--blue);
+  border-radius:8px;padding:14px 16px;
+  font-size:11px;color:var(--dim);line-height:1.7;
+  margin-bottom:16px;display:none;
+  animation:fadein .3s ease;
+}
+.explanation.show{display:block}
+.explanation strong{color:var(--blue)}
+
+/* NEXT BUTTON */
+.next-btn{
+  width:100%;padding:14px;border-radius:10px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;border:none;
+  background:var(--purple);color:#fff;
+  transition:all .2s;display:none;
+}
+.next-btn.show{display:block}
+.next-btn:hover{background:#c89fff}
+
+/* PROGRESS DOTS */
+.progress-dots{
+  display:flex;gap:5px;flex-wrap:wrap;
+  justify-content:center;margin-top:16px;
+}
+.prog-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border);
+  transition:all .3s;
+}
+.prog-dot.correct{background:var(--green);border-color:var(--green)}
+.prog-dot.wrong{background:var(--red);border-color:var(--red)}
+.prog-dot.current{background:var(--purple);border-color:var(--purple)}
+
+/* ── RESULT SCREEN ── */
+#screen-result{text-align:center}
+.result-emoji{font-size:4rem;margin-bottom:16px;display:block;animation:bounce .5s ease}
+@keyframes bounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.result-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-style:italic;
+  font-size:2.2rem;margin-bottom:8px;
+}
+.result-score{
+  font-size:4rem;font-weight:500;
+  color:var(--purple);margin:20px 0;
+  font-family:'Cormorant Garamond',serif;
+}
+.result-sub{font-size:11px;color:var(--dim);letter-spacing:.08em;margin-bottom:32px}
+
+.result-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;margin-bottom:32px;
+}
+.result-stat{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+}
+.result-stat-n{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:1.8rem;
+  display:block;margin-bottom:4px;
+}
+.result-stat-l{font-size:9px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* BREAKDOWN */
+.breakdown{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;margin-bottom:24px;
+  text-align:left;
+}
+.breakdown-header{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+}
+.breakdown-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  font-size:11px;
+}
+.breakdown-item:last-child{border-bottom:none}
+.breakdown-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.breakdown-q{color:var(--dim);margin-bottom:4px;line-height:1.5}
+.breakdown-a{color:var(--text);font-weight:500}
+.breakdown-wrong{color:var(--red);font-size:10px;margin-top:2px}
+
+.result-btns{display:flex;gap:10px}
+.result-btn{
+  flex:1;padding:14px;border-radius:10px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.result-btn-primary{
+  background:var(--purple);color:#fff;border:none;
+  box-shadow:0 4px 16px rgba(188,140,255,.2);
+}
+.result-btn-primary:hover{background:#c89fff}
+.result-btn-ghost{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border);
+}
+.result-btn-ghost:hover{border-color:var(--dim)}
+
+/* ── FOOTER ── */
+.footer{
+  margin-top:24px;font-size:9px;color:var(--dim);
+  letter-spacing:.12em;text-align:center;
+}
+.footer a{color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME SCREEN ═══ -->
+<div class="screen active" id="screen-home">
+  <div style="text-align:center;margin-bottom:28px">
+    <div class="day-badge">Day 13 of 365</div>
+    <div class="home-title">Quiz Time 🧠</div>
+    <div class="home-sub">test your knowledge · 10 questions · timed rounds</div>
+  </div>
+
+  <div class="category-grid" id="cat-grid"></div>
+
+  <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;text-align:center">Difficulty</div>
+  <div class="difficulty-wrap">
+    <button class="diff-btn active" onclick="setDiff('easy')">Easy</button>
+    <button class="diff-btn" onclick="setDiff('medium')">Medium</button>
+    <button class="diff-btn" onclick="setDiff('hard')">Hard</button>
+    <button class="diff-btn" onclick="setDiff('mixed')">Mixed</button>
+  </div>
+
+  <button class="start-btn" onclick="startQuiz()">Start Quiz →</button>
+</div>
+
+<!-- ═══ QUIZ SCREEN ═══ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <div class="quiz-meta" id="quiz-meta">Question 1 of 10</div>
+    <div class="quiz-score-live" id="score-live">Score: 0</div>
+  </div>
+
+  <div class="timer-wrap">
+    <div class="timer-bar-bg">
+      <div class="timer-bar-fill" id="timer-bar"></div>
+    </div>
+    <div class="timer-text" id="timer-text">15s</div>
+  </div>
+
+  <div class="question-card">
+    <div class="question-num" id="q-num">Question 1</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cat" id="q-cat"></div>
+  </div>
+
+  <div class="options-grid" id="options-grid"></div>
+  <div class="explanation" id="explanation"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+
+  <div class="progress-dots" id="progress-dots"></div>
+</div>
+
+<!-- ═══ RESULT SCREEN ═══ -->
+<div class="screen" id="screen-result">
+  <div class="result-emoji" id="result-emoji">🏆</div>
+  <div class="result-title" id="result-title">Excellent!</div>
+  <div class="result-score" id="result-score">0/10</div>
+  <div class="result-sub" id="result-sub"></div>
+
+  <div class="result-stats">
+    <div class="result-stat">
+      <span class="result-stat-n" id="stat-correct" style="color:var(--green)">0</span>
+      <span class="result-stat-l">Correct</span>
+    </div>
+    <div class="result-stat">
+      <span class="result-stat-n" id="stat-wrong" style="color:var(--red)">0</span>
+      <span class="result-stat-l">Wrong</span>
+    </div>
+    <div class="result-stat">
+      <span class="result-stat-n" id="stat-time" style="color:var(--blue)">0s</span>
+      <span class="result-stat-l">Avg Time</span>
+    </div>
+  </div>
+
+  <div class="breakdown">
+    <div class="breakdown-header">Question Breakdown</div>
+    <div id="breakdown-list"></div>
+  </div>
+
+  <div class="result-btns">
+    <button class="result-btn result-btn-ghost" onclick="goHome()">← Change Category</button>
+    <button class="result-btn result-btn-primary" onclick="restartQuiz()">Play Again →</button>
+  </div>
+</div>
+
+<div class="footer">
+  Built by <a href="https://www.linkedin.com/in/forkaifansari" target="_blank">Kaif Ansari</a> ·
+  <a href="https://github.com/forkaifansari/365-days-of-code" target="_blank">GitHub →</a>
+</div>
+
+<script>
+// ── QUESTION BANK ──
+const QUESTIONS = {
+  python:[
+    {q:"What does len([1,2,3]) return?",o:["2","3","4","Error"],a:1,e:"len() returns the number of items in a list. [1,2,3] has 3 items.",d:"easy"},
+    {q:"Which keyword is used to define a function in Python?",o:["func","define","def","function"],a:2,e:"'def' is Python's keyword for function definition.",d:"easy"},
+    {q:"What is the output of: print(type(3.14))?",o:["<class 'int'>","<class 'str'>","<class 'float'>","<class 'double'>"],a:2,e:"3.14 is a float literal in Python.",d:"easy"},
+    {q:"What does range(5) produce?",o:["[1,2,3,4,5]","[0,1,2,3,4]","[0,1,2,3,4,5]","range object only"],a:1,e:"range(5) generates 0,1,2,3,4 — it starts from 0 and excludes the stop value.",d:"easy"},
+    {q:"Which of these is a mutable data type in Python?",o:["tuple","string","int","list"],a:3,e:"Lists are mutable — you can change their contents. Tuples and strings are immutable.",d:"medium"},
+    {q:"What does the 'self' parameter in a class method refer to?",o:["The class itself","The parent class","The current instance","A static method"],a:2,e:"'self' refers to the current instance of the class, allowing access to instance attributes.",d:"medium"},
+    {q:"What is the time complexity of dict lookup in Python?",o:["O(n)","O(log n)","O(1) average","O(n²)"],a:2,e:"Python dicts use hash tables — average lookup is O(1), worst case O(n) due to hash collisions.",d:"hard"},
+    {q:"What does the GIL stand for in Python?",o:["Global Instance Lock","General Import Layer","Global Interpreter Lock","Generic Iteration Loop"],a:2,e:"The Global Interpreter Lock prevents multiple native threads from executing Python bytecode simultaneously.",d:"hard"},
+    {q:"Which Python version introduced f-strings?",o:["Python 2.7","Python 3.4","Python 3.6","Python 3.8"],a:2,e:"f-strings (formatted string literals) were introduced in Python 3.6 via PEP 498.",d:"medium"},
+    {q:"What does *args allow in a function?",o:["Keyword arguments","Variable positional args","Default values","Class methods"],a:1,e:"*args allows a function to accept any number of positional arguments, packed into a tuple.",d:"medium"},
+  ],
+  webdev:[
+    {q:"What does CSS stand for?",o:["Computer Style Sheets","Creative Style Syntax","Cascading Style Sheets","Colorful Style Sheets"],a:2,e:"CSS stands for Cascading Style Sheets — it handles the visual presentation of HTML documents.",d:"easy"},
+    {q:"Which HTML tag is used for the largest heading?",o:["<h6>","<heading>","<h1>","<head>"],a:2,e:"<h1> defines the most important/largest heading. There are 6 levels: h1 through h6.",d:"easy"},
+    {q:"What does DOM stand for?",o:["Document Object Model","Data Object Manager","Design Output Mode","Dynamic Object Method"],a:0,e:"DOM stands for Document Object Model — a programming interface for HTML/XML documents.",d:"easy"},
+    {q:"Which property makes a flexbox container wrap items?",o:["flex-wrap: wrap","flex: wrap","overflow: wrap","flex-flow: wrap"],a:0,e:"flex-wrap: wrap allows flex items to wrap onto multiple lines when they exceed the container width.",d:"medium"},
+    {q:"What is the output of: typeof null in JavaScript?",o:["'null'","'undefined'","'object'","'boolean'"],a:2,e:"typeof null returns 'object' — this is a well-known JavaScript bug that can't be fixed for backward compatibility.",d:"hard"},
+    {q:"What HTTP status code means 'Not Found'?",o:["200","301","403","404"],a:3,e:"404 Not Found means the server can't find the requested resource.",d:"easy"},
+    {q:"Which CSS unit is relative to the root element font size?",o:["em","px","rem","vh"],a:2,e:"rem (root em) is relative to the root element's font-size, unlike em which is relative to the parent.",d:"medium"},
+    {q:"What does async/await do in JavaScript?",o:["Creates animations","Handles promises synchronously-looking","Runs code in parallel threads","Delays execution"],a:1,e:"async/await is syntactic sugar over Promises, making asynchronous code look and behave like synchronous code.",d:"medium"},
+    {q:"What is the box model in CSS?",o:["A 3D rendering technique","Content, padding, border, margin layers","A JavaScript pattern","A grid layout system"],a:1,e:"The CSS box model describes how elements are rendered as boxes with content, padding, border, and margin.",d:"medium"},
+    {q:"Which JavaScript method removes the last element of an array?",o:["shift()","splice()","pop()","remove()"],a:2,e:"Array.pop() removes and returns the last element. shift() removes the first element.",d:"easy"},
+  ],
+  aiml:[
+    {q:"What does ML stand for?",o:["Multiple Layers","Machine Learning","Model Logic","Meta Language"],a:1,e:"ML stands for Machine Learning — systems that learn from data without being explicitly programmed.",d:"easy"},
+    {q:"Which algorithm is used in Random Forest?",o:["Neural Networks","Decision Trees","SVM","Linear Regression"],a:1,e:"Random Forest is an ensemble of Decision Trees — it trains multiple trees and aggregates their predictions.",d:"easy"},
+    {q:"What is overfitting?",o:["Model too simple for data","Model memorizes training data, fails on new data","Model trains too slowly","Model uses too much RAM"],a:1,e:"Overfitting occurs when a model learns training data too well, including noise, leading to poor generalization.",d:"medium"},
+    {q:"What does LSTM stand for?",o:["Large Scale Training Model","Long Short-Term Memory","Linear Sequential Training Method","Layer Stack Transfer Model"],a:1,e:"LSTM (Long Short-Term Memory) is a type of RNN designed to learn long-range dependencies in sequences.",d:"medium"},
+    {q:"What is the purpose of a loss function?",o:["Speed up training","Measure model error","Generate new data","Clean the dataset"],a:1,e:"A loss function measures how far the model's predictions are from the true values — it guides optimization.",d:"easy"},
+    {q:"What does RAG stand for in LLM applications?",o:["Recursive Attention Generation","Retrieval Augmented Generation","Random Access Graph","Recurrent Aggregation Gate"],a:1,e:"RAG (Retrieval Augmented Generation) combines retrieval of relevant documents with LLM generation for grounded responses.",d:"hard"},
+    {q:"What is the vanishing gradient problem?",o:["GPU memory overflow","Gradients become too small during backprop in deep networks","Model weights become NaN","Loss function diverges"],a:1,e:"In deep networks, gradients can shrink exponentially during backpropagation, making early layers train very slowly.",d:"hard"},
+    {q:"Which activation function is most common in hidden layers today?",o:["Sigmoid","Tanh","ReLU","Softmax"],a:2,e:"ReLU (Rectified Linear Unit) f(x)=max(0,x) is preferred — it's fast, avoids vanishing gradients, and works well in practice.",d:"medium"},
+    {q:"What is transfer learning?",o:["Moving model between servers","Using pretrained model weights as starting point","Learning from multiple datasets at once","Transferring data between models"],a:1,e:"Transfer learning reuses weights from a model trained on a large dataset, fine-tuning it for a specific task.",d:"medium"},
+    {q:"What is XGBoost short for?",o:["Extra Gradient Boosting","Extreme Gradient Boosting","Extended Graph Boosting","X-axis Gradient Boosting"],a:1,e:"XGBoost stands for Extreme Gradient Boosting — an optimized distributed gradient boosting library.",d:"easy"},
+  ],
+  gk:[
+    {q:"Which country has the most internet users?",o:["USA","India","China","Japan"],a:2,e:"China has the most internet users with over 1 billion, followed by India and USA.",d:"easy"},
+    {q:"What year was Python first released?",o:["1985","1989","1991","1995"],a:2,e:"Python was first released in 1991 by Guido van Rossum. Python 2.0 came in 2000, Python 3.0 in 2008.",d:"medium"},
+    {q:"Which company created the React framework?",o:["Google","Microsoft","Meta (Facebook)","Netflix"],a:2,e:"React was created by Jordan Walke at Facebook (now Meta) and open-sourced in 2013.",d:"easy"},
+    {q:"What does API stand for?",o:["Applied Programming Interface","Application Program Index","Application Programming Interface","Automated Process Integration"],a:2,e:"API stands for Application Programming Interface — it defines how software components interact.",d:"easy"},
+    {q:"Which Indian city is known as the Silicon Valley of India?",o:["Mumbai","Delhi","Hyderabad","Bengaluru"],a:3,e:"Bengaluru (Bangalore) is called India's Silicon Valley due to its large IT industry and tech startups.",d:"easy"},
+    {q:"What is Chhattisgarh's capital city?",o:["Bhilai","Raipur","Bilaspur","Durg"],a:1,e:"Raipur is the capital of Chhattisgarh. Bhilai (where Kaif is from) is the industrial center.",d:"medium"},
+    {q:"Which data structure uses LIFO order?",o:["Queue","Stack","Linked List","Tree"],a:1,e:"Stack uses LIFO (Last In First Out) — the last element added is the first to be removed.",d:"easy"},
+    {q:"What does SQL stand for?",o:["Structured Query Language","System Query Logic","Secure Query Layer","Standard Query List"],a:0,e:"SQL stands for Structured Query Language — used to manage and query relational databases.",d:"easy"},
+    {q:"Which company owns GitHub?",o:["Google","Amazon","Microsoft","IBM"],a:2,e:"Microsoft acquired GitHub in 2018 for $7.5 billion. GitHub has over 100 million developers.",d:"medium"},
+    {q:"What is the full form of URL?",o:["Universal Resource Locator","Uniform Resource Locator","Unified Resource Link","Universal Reference Link"],a:1,e:"URL stands for Uniform Resource Locator — it specifies the address of a resource on the internet.",d:"easy"},
+  ],
+};
+
+const CATEGORIES=[
+  {id:'python',name:'Python',icon:'🐍',color:'var(--blue)'},
+  {id:'webdev',name:'Web Dev',icon:'🌐',color:'var(--green)'},
+  {id:'aiml',name:'AI / ML',icon:'🤖',color:'var(--purple)'},
+  {id:'gk',name:'Tech GK',icon:'💡',color:'var(--gold)'},
+];
+
+// ── STATE ──
+let selectedCat='python';
+let selectedDiff='mixed';
+let currentQuestions=[];
+let currentIndex=0;
+let score=0;
+let timerInterval=null;
+let timeLeft=15;
+let answered=false;
+let results=[];
+let questionTimes=[];
+let questionStartTime=0;
+
+// ── HOME ──
+function renderCategories(){
+  const grid=document.getElementById('cat-grid');
+  grid.innerHTML='';
+  CATEGORIES.forEach(c=>{
+    const card=document.createElement('div');
+    card.className='cat-card'+(selectedCat===c.id?' selected':'');
+    card.style.setProperty('--cat-color',c.color);
+    card.innerHTML=`
+      <span class="cat-icon">${c.icon}</span>
+      <div class="cat-name">${c.name}</div>
+      <div class="cat-count">${QUESTIONS[c.id].length} questions</div>
+    `;
+    card.onclick=()=>{
+      selectedCat=c.id;
+      document.querySelectorAll('.cat-card').forEach(cc=>cc.classList.remove('selected'));
+      card.classList.add('selected');
+    };
+    grid.appendChild(card);
+  });
+}
+
+function setDiff(d){
+  selectedDiff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent.toLowerCase()===d);
+  });
+}
+
+// ── START ──
+function startQuiz(){
+  let pool=QUESTIONS[selectedCat];
+  if(selectedDiff!=='mixed') pool=pool.filter(q=>q.d===selectedDiff);
+  if(!pool.length) pool=QUESTIONS[selectedCat];
+  currentQuestions=shuffle([...pool]).slice(0,10);
+  currentIndex=0;score=0;results=[];questionTimes=[];answered=false;
+  showScreen('screen-quiz');
+  renderProgressDots();
+  loadQuestion();
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// ── QUESTION ──
+function loadQuestion(){
+  const q=currentQuestions[currentIndex];
+  answered=false;
+  document.getElementById('explanation').className='explanation';
+  document.getElementById('next-btn').className='next-btn';
+  document.getElementById('quiz-meta').textContent=`Question ${currentIndex+1} of ${currentQuestions.length}`;
+  document.getElementById('score-live').textContent=`Score: ${score}`;
+  document.getElementById('q-num').textContent=`Question ${currentIndex+1} · ${q.d.toUpperCase()}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-cat').textContent=CATEGORIES.find(c=>c.id===selectedCat)?.name+' · '+selectedCat;
+
+  // shuffle options
+  const opts=q.o.map((o,i)=>({text:o,idx:i}));
+  const shuffled=shuffle([...opts]);
+  const correctShuffledIdx=shuffled.findIndex(o=>o.idx===q.a);
+
+  const grid=document.getElementById('options-grid');
+  grid.innerHTML='';
+  const letters=['A','B','C','D'];
+  shuffled.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<span class="option-letter">${letters[i]}</span>${opt.text}`;
+    btn.onclick=()=>selectAnswer(btn,i,correctShuffledIdx,q);
+    grid.appendChild(btn);
+  });
+
+  updateProgressDots();
+  startTimer(q);
+  questionStartTime=Date.now();
+}
+
+function startTimer(q){
+  clearInterval(timerInterval);
+  const maxTime=q.d==='easy'?15:q.d==='medium'?12:10;
+  timeLeft=maxTime;
+  updateTimerBar(1,false);
+  document.getElementById('timer-text').textContent=timeLeft+'s';
+
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    const frac=timeLeft/maxTime;
+    const warn=frac<0.35;
+    updateTimerBar(frac,warn);
+    document.getElementById('timer-text').textContent=timeLeft+'s';
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      if(!answered) timeOut(q);
+    }
+  },1000);
+}
+
+function updateTimerBar(frac,warn){
+  const bar=document.getElementById('timer-bar');
+  bar.style.width=(frac*100)+'%';
+  bar.className='timer-bar-fill'+(warn?' warning':'');
+}
+
+function selectAnswer(btn,selectedIdx,correctIdx,q){
+  if(answered) return;
+  answered=true;
+  clearInterval(timerInterval);
+  const elapsed=Math.round((Date.now()-questionStartTime)/1000);
+  questionTimes.push(elapsed);
+
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correctIdx) b.classList.add('correct');
+    else if(i===selectedIdx&&selectedIdx!==correctIdx) b.classList.add('wrong');
+    else b.classList.add('revealed');
+  });
+
+  const isCorrect=selectedIdx===correctIdx;
+  if(isCorrect){
+    score++;
+    document.getElementById('score-live').textContent=`Score: ${score}`;
+  }
+
+  results.push({q:q.q,correct:isCorrect,answer:q.o[q.a],selected:q.o[btns[selectedIdx].querySelector('.option-letter').parentElement===btn?selectedIdx:selectedIdx]});
+
+  const expEl=document.getElementById('explanation');
+  expEl.innerHTML=`<strong>${isCorrect?'✅ Correct!':'❌ Wrong.'}</strong> ${q.e}`;
+  expEl.className='explanation show';
+  document.getElementById('next-btn').className='next-btn show';
+  document.getElementById('next-btn').textContent=currentIndex<currentQuestions.length-1?'Next Question →':'See Results →';
+
+  updateProgressDots(isCorrect);
+}
+
+function timeOut(q){
+  answered=true;
+  questionTimes.push(15);
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach((b,i)=>{b.disabled=true;if(i===/* find correct */[...btns].findIndex((bb,ii)=>ii===/* need correctIdx... skip */0)) b.classList.add('correct');});
+  // reveal correct
+  const opts=document.querySelectorAll('.option-btn');
+  // just mark all disabled and show explanation
+  opts.forEach(b=>b.disabled=true);
+  results.push({q:q.q,correct:false,answer:q.o[q.a],selected:'⏰ Time up'});
+  const expEl=document.getElementById('explanation');
+  expEl.innerHTML=`<strong>⏰ Time's up!</strong> The correct answer was: <strong>${q.o[q.a]}</strong>. ${q.e}`;
+  expEl.className='explanation show';
+  document.getElementById('next-btn').className='next-btn show';
+  document.getElementById('next-btn').textContent=currentIndex<currentQuestions.length-1?'Next Question →':'See Results →';
+  updateProgressDots(false);
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex>=currentQuestions.length){
+    showResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+// ── PROGRESS DOTS ──
+function renderProgressDots(){
+  const wrap=document.getElementById('progress-dots');
+  wrap.innerHTML='';
+  currentQuestions.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    dot.className='prog-dot';
+    wrap.appendChild(dot);
+  });
+}
+
+function updateProgressDots(correct=null){
+  const dots=document.querySelectorAll('.prog-dot');
+  dots.forEach((d,i)=>{
+    if(i<currentIndex) return;
+    if(i===currentIndex){
+      if(correct===null) d.classList.add('current');
+      else{ d.classList.remove('current'); d.classList.add(correct?'correct':'wrong'); }
+    }
+  });
+}
+
+// ── RESULTS ──
+function showResults(){
+  clearInterval(timerInterval);
+  const pct=Math.round((score/currentQuestions.length)*100);
+  const avgTime=questionTimes.length?Math.round(questionTimes.reduce((a,b)=>a+b,0)/questionTimes.length):0;
+
+  let emoji,title,sub;
+  if(pct===100){emoji='🏆';title='Perfect Score!';sub='Absolutely flawless. You nailed every single question.'}
+  else if(pct>=80){emoji='🎯';title='Excellent!';sub="You're crushing it. Almost perfect!"}
+  else if(pct>=60){emoji='👍';title='Good Job!';sub='Solid performance. A few more revisions and you\'ll ace it.'}
+  else if(pct>=40){emoji='📚';title='Keep Learning!';sub='Room to grow. Review the explanations and try again.'}
+  else{emoji='💪';title='Don\'t Give Up!';sub='Every expert was once a beginner. Keep going!'}
+
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-title').textContent=title;
+  document.getElementById('result-score').textContent=`${score}/${currentQuestions.length}`;
+  document.getElementById('result-sub').textContent=sub;
+  document.getElementById('stat-correct').textContent=score;
+  document.getElementById('stat-wrong').textContent=currentQuestions.length-score;
+  document.getElementById('stat-time').textContent=avgTime+'s';
+
+  const list=document.getElementById('breakdown-list');
+  list.innerHTML='';
+  results.forEach((r,i)=>{
+    const item=document.createElement('div');
+    item.className='breakdown-item';
+    item.innerHTML=`
+      <div class="breakdown-icon">${r.correct?'✅':'❌'}</div>
+      <div>
+        <div class="breakdown-q">Q${i+1}: ${r.q}</div>
+        <div class="breakdown-a">✓ ${r.answer}</div>
+        ${!r.correct?`<div class="breakdown-wrong">Your answer: ${r.selected}</div>`:''}
+      </div>
+    `;
+    list.appendChild(item);
+  });
+
+  showScreen('screen-result');
+}
+
+function goHome(){
+  clearInterval(timerInterval);
+  showScreen('screen-home');
+}
+
+function restartQuiz(){
+  startQuiz();
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.key>='1'&&e.key<='4'){
+    const btns=document.querySelectorAll('.option-btn');
+    const idx=parseInt(e.key)-1;
+    if(btns[idx]&&!answered) btns[idx].click();
+  }
+  if(e.key==='Enter'){
+    const next=document.getElementById('next-btn');
+    if(next.classList.contains('show')) next.click();
+  }
+});
+
+// ── INIT ──
+renderCategories();
+</script>
+</body>
+</html>
